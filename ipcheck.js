@@ -21,7 +21,7 @@ $httpClient.get(url, function(error, response, data) {
 
     body = {
         title: "Thông tin Internet",
-        content: `Địa chỉ IP: ${ip}\n ISP: ${isp}\nASN: ${as}\nVị trí IP: ${emoji}${country} - ${city}`,
+        content: `Địa chỉ IP: ${ip}\nISP: ${isp}\nASN: ${as}\nVị trí IP: ${emoji}${country} - ${city}`,
         icon: "link.icloud",
         'icon-color': "#5AC8FA"
     }
