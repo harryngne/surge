@@ -25,7 +25,7 @@ Network Information = type=generic,timeout=5,script-path=https://raw.githubuserc
 flushDNS = type=generic,timeout=10,script-path=https://raw.githubusercontent.com/zZPiglet/Task/master/asset/flushDNS.js,argument=title=DNS FLush&icon=arrow.clockwise&color=#3d3d5b&server=false
 
 netflixCheck = type=generic,script-path=https://raw.githubusercontent.com/harryngne/surge/master/netflix-check.js, timeout=30
-//  , argument=icon1=checkmark.shield&color1=#1B813E&icon2=exclamationmark.shield&color2=#EFBB24&icon3=xmark.shield&color3=#CB1B45&icon4=exclamationmark.arrow.triangle.2.circlepath&color4=#77428D&title=Kiểm tra khóa IP bản quyền phim Netflix
+//  , argument=icon1=checkmark.shield&color1=#1B813E&icon2=exclamationmark.shield&color2=#EFBB24&icon3=xmark.shield&color3=#CB1B45&icon4=exclamationmark.arrow.triangle.2.circlepath&color4=#77428D&title=NetflixIP
 
 
 #流量统计
