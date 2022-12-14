@@ -7,7 +7,7 @@ const AREA_TEST_FILM_ID = 80018499
 ;
 (async() => {
     let result = {
-        title: "Kiểm tra khóa IP bản quyền phim Netflix",
+        title: "NetflixIP",
         icon: "exclamationmark.arrow.triangle.2.circlepath",
         'icon-color': "#77428D",
         content: 'Kiểm tra không thành công, vui lòng kiểm tra trạng thái mạng',
@@ -17,7 +17,7 @@ const AREA_TEST_FILM_ID = 80018499
             if (code === 'Not Found') {
                 return test(AREA_TEST_FILM_ID)
             }
-            result['Title'] = "Kiểm tra khóa IP bản quyền phim Netflix"
+            result['Title'] = "NetflixIP"
             result['icon'] = "checkmark.shield"
             result['icon-color'] = '#1B813E'
                 //result['icon'] = params.icon1
