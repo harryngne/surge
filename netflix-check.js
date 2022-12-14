@@ -7,44 +7,44 @@ const AREA_TEST_FILM_ID = 80018499
 ;
 (async() => {
     let result = {
-        title: "NetflixIP",
+        title: "Netflix 影劇版權 IP 鎖測試",
         icon: "exclamationmark.arrow.triangle.2.circlepath",
         'icon-color': "#77428D",
-        content: 'Kiểm tra không thành công, vui lòng kiểm tra trạng thái mạng',
+        content: '測試失敗，請檢查網路狀態',
     }
     await test(FILM_ID)
         .then((code) => {
             if (code === 'Not Found') {
                 return test(AREA_TEST_FILM_ID)
             }
-            result['Title'] = "NetflixIP"
+            result['Title'] = "Netflix 影劇版權 IP 鎖測試"
             result['icon'] = "checkmark.shield"
             result['icon-color'] = '#1B813E'
                 //result['icon'] = params.icon1
                 //result['icon-color'] = params.color1
-            result['content'] = 'IP hiện tại có thể xem phim và phim truyền hình Netflix đầy đủ\nMở khóa quốc gia：' + code.toUpperCase()
+            result['content'] = '目前 IP 可完整收看 Netflix 影劇\n解鎖國家：' + code.toUpperCase()
             return Promise.reject('BreakSignal')
         })
         .then((code) => {
             if (code === 'Not Found') {
                 return Promise.reject('Not Available')
             }
-            result['Title'] = "Kiểm tra khóa IP bản quyền phim Netflix"
+            result['Title'] = "Netflix 影劇版權 IP 鎖測試"
             result['icon'] = "exclamationmark.shield"
             result['icon-color'] = "#EFBB24"
                 //result['icon'] = params.icon2
                 //result['icon-color'] = params.color2
-            result['content'] = 'Hiện tại IP chỉ hỗ trợ xem phim truyền hình nhà Netflix\nMở khóa quốc gia：' + code.toUpperCase()
+            result['content'] = '目前 IP 僅支援收看 Netflix 自製劇\n解鎖國家：' + code.toUpperCase()
             return Promise.reject('BreakSignal')
         })
         .catch((error) => {
             if (error === 'Not Available') {
-                result['Title'] = "Kiểm tra khóa IP bản quyền phim Netflix"
+                result['Title'] = "Netflix 影劇版權 IP 鎖測試"
                 result['icon'] = "xmark.shield"
                 result['icon-color'] = "#CB1B45"
                     //result['icon'] = params.icon3
                     //result['icon-color'] = params.color3
-                result['content'] = 'Netflix không hỗ trợ IP này'
+                result['content'] = 'Netflix 不為此 IP 提供服務'
                 return
             }
         })
