@@ -10,7 +10,7 @@ Network Information = script-name=Network Information,title=Network Information,
 flushDNS = script-name=flushDNS,update-interval=600
 
 # Netflix解锁检测
-netflixCheck = script-name=netflixCheck,update-interval=1, 
+nf_check = script-name=nf_check, title="Netflix 解锁检测", content="请刷新", update-interval=1
 
 
 #流量统计
@@ -26,8 +26,7 @@ flushDNS = type=generic,timeout=10,script-path=https://raw.githubusercontent.com
 
 
 
-netflixCheck = type=generic,script-path=https://raw.githubusercontent.com/harryngne/surge/master/netflix-check.js, timeout=30
-//  , argument=icon1=checkmark.shield&color1=#1B813E&icon2=exclamationmark.shield&color2=#EFBB24&icon3=xmark.shield&color3=#CB1B45&icon4=exclamationmark.arrow.triangle.2.circlepath&color4=#77428D&title=Netflix 影劇版權 IP 鎖測試
+nf_check = type=generic,script-path=https://gist.githubusercontent.com/Hyseen/b06e911a41036ebc36acf04ddebe7b9a/raw/nf_check.js?version=1632728073, timeout=30
 
 #流量统计
 #应当修改的字段：network : en0→WiFi pdp_ip0→卡1 pdp_ip1→卡2
