@@ -5,7 +5,7 @@
 #Surge Pro标题,可显示启动时间,点击刷新为重载配置
 SurgePro_ReloadProfile = script-name=SurgePro_ReloadProfile,update-interval=1
 # 节假日查询
-timecard = script-name=timecard,update-interval=3600
+
 
 
 #流量统计
@@ -61,8 +61,6 @@ net_info_ip = type=generic,timeout=10,script-path=https://raw.githubusercontent.
 
 net-info-panel = script-path=https://raw.githubusercontent.com/harryngne/surge/master/net-info-panel.js,type=generic,script-update-interval=0
 
-# 节假日提醒
-timecard = type=generic,timeout=10,script-path=https://raw.githubusercontent.com/harryngne/surge/master/timecard.js
 
 # dns
 flushDNS = type=generic,timeout=5,script-path=https://raw.githubusercontent.com/zZPiglet/Task/master/asset/flushDNS.js,argument=title=DNS FLush&icon=arrow.clockwise&color=#3d3d5b
