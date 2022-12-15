@@ -771,7 +771,7 @@ function title_random(num) {
         2: "Đợi đã, đã đến lúc nghỉ lễ！",
         3: "Tôi rất mệt mỏi trong công việc, bữa ăn tiếp theo của tôi là gì",
         4: "Làm việc chăm chỉ, tôi vẫn có thể tăng ca trong 24 giờ!",
-        5: "Hôm nay：Đi ăn đồ giảm cân",
+        5: "Hôm nay: Đi ăn đồ giảm cân",
         6: "Nằm bẹp, chờ đến ngày lễ",
         7: "Sắp đến tết rồi vui quá đi",
         8: nowlunar,
@@ -784,5 +784,5 @@ function title_random(num) {
 $done({
     title: title_random(tnumcount(Number(nowlist))),
     icon: icon_now(tnumcount(Number(nowlist))),
-    content: tlist[nowlist][0] + ":" + today(tnumcount(nowlist)) + "," + tlist[Number(nowlist) + Number(1)][0] + ": " + tnumcount(Number(nowlist) + Number(1)) + " Ngày," + tlist[Number(nowlist) + Number(2)][0] + ": " + tnumcount(Number(nowlist) + Number(2)) + " Ngày"
+    content: tlist[nowlist][0] + ": " + today(tnumcount(nowlist)) + "," + tlist[Number(nowlist) + Number(1)][0] + ": " + tnumcount(Number(nowlist) + Number(1)) + " Ngày," + tlist[Number(nowlist) + Number(2)][0] + ": " + tnumcount(Number(nowlist) + Number(2)) + " Ngày"
 })
