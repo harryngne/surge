@@ -64,7 +64,6 @@ net-info-panel = script-path=https://raw.githubusercontent.com/harryngne/surge/m
 # 节假日提醒
 timecard = type=generic,timeout=10,script-path=https://raw.githubusercontent.com/smartmimi/conf/master/surge/timecard.js
 
-疫情统计 = type=generic, script-path=https://raw.githubusercontent.com/kkfive/Proxy_Rules/main/Surge/script/Covid19.js
 # dns
 flushDNS = type=generic,timeout=5,script-path=https://raw.githubusercontent.com/zZPiglet/Task/master/asset/flushDNS.js,argument=title=DNS FLush&icon=arrow.clockwise&color=#3d3d5b
 
