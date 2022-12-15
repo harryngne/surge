@@ -1,15 +1,15 @@
 var tlist = {
-    1: ["中秋", "2022-09-10"],
-    2: ["国庆", "2022-10-01"],
-    3: ["元旦", "2023-01-01"],
-    4: ["春节", "2023-01-22"],
-    5: ["元宵", "2023-02-05"],
-    6: ["清明", "2023-04-05"],
-    7: ["劳动", "2023-05-01"],
-    8: ["端午", "2023-06-22"],
-    9: ["中秋", "2023-09-29"],
-    10: ["国庆", "2023-10-01"],
-    11: ["元旦", "2024-01-01"]
+    1: ["Lễ hội trung thu", "2022-09-10"],
+    2: ["Ngày quốc khánh", "2022-09-02"],
+    3: ["Năm mới", "2023-01-01"],
+    4: ["Lễ hội xuân", "2023-01-22"],
+    5: ["Lễ hội đèn lồng", "2023-02-05"],
+    6: ["Tết thanh minh", "2023-04-05"],
+    7: ["Quốc tế lao động", "2023-05-01"],
+    8: ["Lễ hội thuyền rồng", "2023-06-22"],
+    9: ["Trung thu", "2023-09-29"],
+    10: ["Ngày quốc khánh", "2023-09-02"],
+    11: ["Năm mới", "2024-01-01"]
 
 };
 let tnow = new Date();
@@ -59,7 +59,7 @@ function today(day) {
         datenotice();
         return "🎉";
     } else {
-        return daythis + "天";
+        return daythis + "Ngày";
     }
 }
 
@@ -67,7 +67,7 @@ function today(day) {
 function datenotice() {
     if ($persistentStore.read("timecardpushed") != tlist[nowlist][1] && tnow.getHours() >= 6) {
         $persistentStore.write(tlist[nowlist][1], "timecardpushed");
-        $notification.post("假日祝福", "", "今天是" + tlist[nowlist][1] + "日 " + tlist[nowlist][0] + "   🎉")
+        $notification.post("Lời chúc ngày lễ", "", "Hôm nay là" + tlist[nowlist][1] + "Ngày " + tlist[nowlist][0] + "   🎉")
     } else if ($persistentStore.read("timecardpushed") == tlist[nowlist][1]) {
         //console.log("当日已通知");
     }
@@ -767,22 +767,22 @@ var nowlunar = lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.gzYear + lunar.gzMont
 function title_random(num) {
     let r = Math.floor((Math.random() * 10) + 1);
     let dic = {
-        1: "距离放假，还要摸鱼多少天？",
-        2: "坚持住，就快放假啦！",
-        3: "上班好累呀，下顿吃啥？",
-        4: "努力，我还能加班24小时！",
-        5: "今日宜：吃饭饭  忌：减肥",
-        6: "躺平中，等放假",
-        7: "只有摸鱼才是赚老板的钱",
+        1: "Còn bao nhiêu ngày nữa là đến kỳ nghỉ lễ？",
+        2: "Đợi đã, đã đến lúc nghỉ lễ！",
+        3: "Tôi rất mệt mỏi trong công việc, bữa ăn tiếp theo của tôi là gì",
+        4: "Làm việc chăm chỉ, tôi vẫn có thể tăng ca trong 24 giờ!",
+        5: "Hôm nay：Đi ăn đồ giảm cân",
+        6: "Nằm bẹp, chờ đến ngày lễ",
+        7: "Sắp đến tết rồi vui quá đi",
         8: nowlunar,
         9: nowsolar,
-        10: "小乌龟慢慢爬"
+        10: "Rùa nhỏ bò chậm"
     };
-    return num == 0 ? "节日快乐，万事大吉" : dic[r]
+    return num == 0 ? "Ngày lễ vui vẻ và may mắn" : dic[r]
 }
 
 $done({
     title: title_random(tnumcount(Number(nowlist))),
     icon: icon_now(tnumcount(Number(nowlist))),
-    content: tlist[nowlist][0] + ":" + today(tnumcount(nowlist)) + "," + tlist[Number(nowlist) + Number(1)][0] + ":" + tnumcount(Number(nowlist) + Number(1)) + "天," + tlist[Number(nowlist) + Number(2)][0] + ":" + tnumcount(Number(nowlist) + Number(2)) + "天"
+    content: tlist[nowlist][0] + ":" + today(tnumcount(nowlist)) + "," + tlist[Number(nowlist) + Number(1)][0] + ": " + tnumcount(Number(nowlist) + Number(1)) + " Ngày," + tlist[Number(nowlist) + Number(2)][0] + ": " + tnumcount(Number(nowlist) + Number(2)) + " Ngày"
 })
