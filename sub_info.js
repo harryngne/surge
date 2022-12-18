@@ -46,11 +46,11 @@ let resetDayLeft = getRmainingDays(resetDay);
     let infoList = [`${bytesToSize(used)} | ${bytesToSize(total)}`];
 
     if (resetDayLeft) {
-        infoList.push(`Ngày làm mới GB：còn lại ${resetDayLeft} ngày`);
+        infoList.push(`Đặt lại dung lượng: còn lại ${resetDayLeft} ngày`);
     }
     if (expire) {
         if (/^[\d.]+$/.test(expire)) expire *= 1000;
-        infoList.push(`HSD：${formatTime(expire)}`);
+        infoList.push(`HSD: ${formatTime(expire)}`);
     }
     sendNotification(used / total, expire, infoList);
     let body = infoList.map((item, index) => item + localProxy[index]).join("\n");
@@ -129,7 +129,7 @@ function formatTime(time) {
     let year = dateObj.getFullYear();
     let month = dateObj.getMonth() + 1;
     let day = dateObj.getDate();
-    return "Ngày" + day + "Tháng" + month + "Năm" + year;
+    return day + "/" + month + "/" + year;
 }
 
 function sendNotification(usageRate, expire, infoList) {
