@@ -28,7 +28,7 @@ const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 ;
 (async() => {
     let panel_result = {
-        title: 'Kiểm tra mở khóa video trực tuyến',
+        title: 'Streaming media unlock detection',
         content: '',
         icon: 'play.tv.fill',
         'icon-color': '#FF2D55',
@@ -44,13 +44,13 @@ const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
             } else if (status == STATUS_AVAILABLE) {
                 //console.log(2)
                 console.log(region)
-                disney_result = "Disney+: Đã mở khóa ➟ " + region.toUpperCase()
+                disney_result = "Disney+: Mở khóa ➟ " + region.toUpperCase()
                     // console.log(result["Disney"])
             } else if (status == STATUS_NOT_AVAILABLE) {
                 //console.log(3)
                 disney_result = "Disney+: Không hỗ trợ 🚫 "
             } else if (status == STATUS_TIMEOUT) {
-                disney_result = "Disney+: Phát hiện thời gian chờ 🚦"
+                disney_result = "Disney+: Kiểm tra thất bại, vui lòng thử lại 🚦"
             }
             result.push(disney_result)
             console.log(result)
@@ -103,11 +103,11 @@ async function check_youtube_premium() {
             if (code === 'Not Available') {
                 youtube_check_result += 'Không hỗ trợ mở khóa.'
             } else {
-                youtube_check_result += 'Đã hỗ trợ mở khóa ➟ ' + code.toUpperCase()
+                youtube_check_result += 'Mở khóa ➟ ' + code.toUpperCase()
             }
         })
         .catch((error) => {
-            youtube_check_result += 'Kiểm tra không thành công, vui lòng làm mới.'
+            youtube_check_result += 'Kiểm tra thất bại, vui lòng thử lại.'
         })
 
     return youtube_check_result
@@ -175,10 +175,10 @@ async function check_netflix() {
                 return
             }
             if (error === 'Not Available') {
-                netflix_check_result += 'Máy chủ VPN này không hỗ trợ mở khóa.'
+                netflix_check_result += 'This node does not support unlocking.'
                 return
             }
-            netflix_check_result += 'Kiểm tra không thành công, vui lòng thử lại.'
+            netflix_check_result += 'Kiểm tra thất bại, vui lòng thử lại.'
         })
 
     return netflix_check_result
