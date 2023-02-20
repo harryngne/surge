@@ -32,17 +32,17 @@ const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
             let disney_result = ""
             if (status == STATUS_COMING) {
                 //console.log(1)
-                disney_result = "Disney+: Sắp ra mắt" + region.toUpperCase()
+                disney_result = "Disney+: 即将登陆~" + region.toUpperCase()
             } else if (status == STATUS_AVAILABLE) {
                 //console.log(2)
                 console.log(region)
-                disney_result = "Disney+: Đã mở khóa，khu vực: " + region.toUpperCase()
+                disney_result = "Disney+: 已解锁，区域: " + region.toUpperCase()
                     // console.log(result["Disney"])
             } else if (status == STATUS_NOT_AVAILABLE) {
                 //console.log(3)
-                disney_result = "Disney+: Không hỗ trợ 🚫 "
+                disney_result = "Disney+: 未支持 🚫 "
             } else if (status == STATUS_TIMEOUT) {
-                disney_result = "Disney+: Lỗi kết nối 🚦"
+                disney_result = "Disney+: 检测超时 🚦"
             }
             result.push(disney_result)
             console.log(result)
@@ -93,13 +93,13 @@ async function check_youtube_premium() {
     await inner_check()
         .then((code) => {
             if (code === 'Not Available') {
-                youtube_check_result += 'Không hỗ trợ'
+                youtube_check_result += '不支持解锁'
             } else {
-                youtube_check_result += 'Đã mở khóa, khu vực: ' + code.toUpperCase()
+                youtube_check_result += '已解锁，区域: ' + code.toUpperCase()
             }
         })
         .catch((error) => {
-            youtube_check_result += 'Kiểm tra không thành công, vui lòng thử lại'
+            youtube_check_result += '检测失败，请刷新面板'
         })
 
     return youtube_check_result
@@ -151,7 +151,7 @@ async function check_netflix() {
             if (code === 'Not Found') {
                 return inner_check(80018499)
             }
-            netflix_check_result += 'Mở khóa toàn bộ, khu vực: ' + code.toUpperCase()
+            netflix_check_result += '已完整解锁，区域: ' + code.toUpperCase()
             return Promise.reject('BreakSignal')
         })
         .then((code) => {
@@ -159,7 +159,7 @@ async function check_netflix() {
                 return Promise.reject('Not Available')
             }
 
-            netflix_check_result += 'Chỉ mở khóa phim truyền hình, khu vực: ' + code.toUpperCase()
+            netflix_check_result += '仅解锁自制剧，区域: ' + code.toUpperCase()
             return Promise.reject('BreakSignal')
         })
         .catch((error) => {
@@ -167,10 +167,10 @@ async function check_netflix() {
                 return
             }
             if (error === 'Not Available') {
-                netflix_check_result += 'Máy chủ này không hỗ trợ mở khóa'
+                netflix_check_result += '该节点不支持解锁'
                 return
             }
-            netflix_check_result += 'Kiểm tra không thành công, vui lòng thử lại'
+            netflix_check_result += '检测失败，请刷新面板'
         })
 
     return netflix_check_result
