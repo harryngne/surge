@@ -2,6 +2,9 @@
 #!desc=信息面板
 
 [Panel]
+
+Panel = title=HarryNG, content=Website:https://panel.fastpn.net,icon=aqi.medium,icon-color=#5AC8FA
+
 #Surge Pro标题,可显示启动时间,点击刷新为重载配置
 SurgePro_ReloadProfile = script-name=SurgePro_ReloadProfile,update-interval=1
 # 节假日查询
