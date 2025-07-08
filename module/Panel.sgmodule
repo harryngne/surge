@@ -2,7 +2,7 @@
 #!desc=All-In-One
 #!system= ios
 #!category= Key
-#!arguments= script-update:-1 ,icons:globe.asia.australia, icolor:#6699FF, GPT:0 ,HideIP:0, cnTimeout:1000, usTimeout:3000, UPDATE_INTERVAL:7200,TITLE:解锁检测,ICON:eye.slash.circle.fill,COLOR:#82AE46
+#!arguments= script-update:-1 ,icons:globe.asia.australia, icolor:#6699FF, GPT:0 ,HideIP:0, cnTimeout:1000, usTimeout:3000, UPDATE_INTERVAL:7200,TITLE:Kiểm tra mở khóa,ICON:eye.slash.circle.fill,COLOR:#82AE46
 #!date= 2024-01-30 08:08:35
 #!arguments-desc= 入口查询超时: cnTimeout\n落地查询超时: usTimeout\n隐藏IP: HideIP \n\n开启为: 1\n关闭为: 0
 
