@@ -950,14 +950,14 @@ async function getProxyInfo(ip, provider) {
 
         url: `https://ipwhois.app/widget.php`,
         params: {
-          lang: 'vi-VN',
+          lang: 'en-US',
           ip,
         },
         headers: {
           Host: 'ipwhois.app',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0',
           Accept: '*/*',
-          'Accept-Language': 'vi-VN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
+          'Accept-Language': 'en-US,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
           'Accept-Encoding': 'gzip, deflate, br',
           Origin: 'https://ipwhois.io',
           Connection: 'keep-alive',
@@ -1014,7 +1014,7 @@ async function getProxyInfo(ip, provider) {
       const res = await http({
         ...(ip ? {} : getNodeOpt()),
 
-        url: `http://ip-api.com/json${p}?lang=vi-VN`,
+        url: `http://ip-api.com/json${p}?lang=en-US`,
         headers: {
           'User-Agent':
             'Mozilla/5.0 (iPhone CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/109.0.0.0',
