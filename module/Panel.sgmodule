@@ -1,5 +1,10 @@
 #!name=Panels
 #!desc=All-In-One
+#!system= ios
+#!category= Key
+#!arguments= script-update:-1 ,icons:globe.asia.australia, icolor:#6699FF, GPT:0 ,HideIP:0, cnTimeout:1000, usTimeout:3000,
+#!date= 2024-01-30 08:08:35
+#!arguments-desc= 入口查询超时: cnTimeout\n落地查询超时: usTimeout\n隐藏IP: HideIP \n\n开启为: 1\n关闭为: 0
 
 [MITM]
 hostname = %APPEND% net-lsp-x.com
@@ -17,14 +22,17 @@ SurgePro_ReloadProfile = script-name=SurgePro_ReloadProfile,update-interval=1
 #Kiểm tra kết nối
 ConnectivityTest = script-name=ConnectivityTest,update-interval=1
 
+NetISP = script-name=NetISP,update-interval=-1
+
 #NetInterface
 网络接口信息面板 = script-name=网络接口信息面板,update-interval={{{UPDATE-INTERVAL}}}
+
 
 net-info-panel=title="网络状态",content="请刷新",style=info,script-name=net-info-panel
 
 net_info_ip=title=网络状态,style=info,script-name=net_info_ip,update-interval=1
 
-{{{PANEL_NAME}}} = script-name=网络信息面板,update-interval={{{UPDATE-INTERVAL}}}
+
 
 
 # flush DNS
@@ -35,12 +43,8 @@ flushDNS = script-name=flushDNS, title="Flush DNS", content="请刷新", update-
 
 
 [Script]
-# Request
-网络信息请求 = type=http-request,pattern=^https?:\/\/net-lsp-x\.com,script-path=https://raw.githubusercontent.com/harryngne/surge/master/net-lsp-x.js,timeout=120
-# Event
-{{{EVENT_SCRIPT_NAME}}} = type=event,event-name=network-changed,timeout=120,script-path=https://raw.githubusercontent.com/harryngne/surge/master/net-lsp-x.js,argument="TYPE=EVENT&icon={{{ICON}}}&icon-color={{{ICON-COLOR}}}&LAN={{{LAN}}}&SSID={{{SSID}}}&IPv6={{{IPv6}}}&MASK={{{MASK}}}&DOMESTIC_IPv4={{{DOMESTIC_IPv4}}}&DOMESTIC_IPv6={{{DOMESTIC_IPv6}}}&LANDING_IPv4={{{LANDING_IPv4}}}&LANDING_IPv6={{{LANDING_IPv6}}}&PRIVACY={{{PRIVACY}}}&FLAG={{{FLAG}}}&ENTRANCE_DELAY={{{ENTRANCE_DELAY}}}&TIMEOUT={{{TIMEOUT}}}&EVENT_DELAY={{{EVENT_DELAY}}}&RETRIES={{{RETRIES}}}&RETRY_DELAY={{{RETRY_DELAY}}}&ASN={{{ASN}}}&ORG={{{ORG}}}&DOMESTIC_IPv4_KEY={{{DOMESTIC_IPv4_KEY}}}&LANDING_IPv4_KEY={{{LANDING_IPv4_KEY}}}"
-# Panel
-网络信息面板 = type=generic,timeout=120,script-path=https://raw.githubusercontent.com/harryngne/surge/master/net-lsp-x.js,argument="icon={{{ICON}}}&icon-color={{{ICON-COLOR}}}&LAN={{{LAN}}}&SSID={{{SSID}}}&IPv6={{{IPv6}}}&MASK={{{MASK}}}&DOMESTIC_IPv4={{{DOMESTIC_IPv4}}}&DOMESTIC_IPv6={{{DOMESTIC_IPv6}}}&LANDING_IPv4={{{LANDING_IPv4}}}&LANDING_IPv6={{{LANDING_IPv6}}}&PRIVACY={{{PRIVACY}}}&FLAG={{{FLAG}}}&ENTRANCE_DELAY={{{ENTRANCE_DELAY}}}&TIMEOUT={{{TIMEOUT}}}&EVENT_DELAY={{{EVENT_DELAY}}}&RETRIES={{{RETRIES}}}&RETRY_DELAY={{{RETRY_DELAY}}}&ASN={{{ASN}}}&ORG={{{ORG}}}&DOMESTIC_IPv4_KEY={{{DOMESTIC_IPv4_KEY}}}&LANDING_IPv4_KEY={{{LANDING_IPv4_KEY}}}"
+
+NetISP = type=generic,timeout=8,script-path=https://raw.githubusercontent.com/harryngne/surge/master/surge.js, script-update-interval={{{script-update}}},argument=icolor={{{icolor}}}&icon={{{icons}}}&GPT={{{GPT}}}&hideIP={{{HideIP}}}&cnTimeout={{{cnTimeout}}}&usTimeout={{{usTimeout}}}
 
 网络接口信息面板 = type=generic,timeout=120,script-path=https://raw.githubusercontent.com/harryngne/surge/master/interface-info.js,argument="icon=wifi.router&icon-color=#6699FF&STYLE=ncompact"
 
