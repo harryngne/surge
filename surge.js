@@ -148,7 +148,7 @@ async function m(e, t) {
       (p =
         " \t" +
         (d(t) + e + " " + c) +
-        "\nIP Cuối: \t" +
+        "\nIP vào proxy: \t" +
         o +
         ": " +
         g +
@@ -178,7 +178,7 @@ async function m(e, t) {
     (y = ": " + e.policyName),
       /\(Proxy\)/.test(e.remoteAddress)
         ? ((h = e.remoteAddress.replace(" (Proxy)", "")), (r = ""))
-        : ((h = "Noip"), (w = "代理链地区:"));
+        : ((h = "Noip"), (w = "Khu vực chuỗi proxy:"));
   } else h = "Noip";
   let N = !1,
     $ = !1;
@@ -192,9 +192,9 @@ async function m(e, t) {
       : /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/.test(h) && (isv6 = !0),
     h == n)
   )
-    (cn = !1), (w = "直连节点:");
+    (cn = !1), (w = "Các nút được kết nối trực tiếp:");
   else {
-    if (("" === w && (w = "落地地区:"), !N || $)) {
+    if (("" === w && (w = "Quốc gia:"), !N || $)) {
       const e = await m(`https://api-v3.speedtest.cn/ip?ip=${h}`, o);
       if (0 === e.code && "中国" === e.data.country) {
         let { province: t, isp: n, city: i, countryCode: o } = e.data,
