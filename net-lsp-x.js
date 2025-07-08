@@ -403,10 +403,12 @@ async function getDirectInfo(ip, provider) {
   const msg = `使用 ${provider || 'pingan'} 查询 ${ip ? ip : '分流'} 信息`
   if (provider == 'cip') {
     try {
-      const res = await http({
-        url: `http://cip.cc/${ip ? encodeURIComponent(ip) : ''}`,
-        headers: { 'User-Agent': 'curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3' },
-      })
+        const res = await http({
+          url: `http://ip-api.com/json/${ip ? encodeURIComponent(ip) : ''}?lang=en`,
+          headers: {
+            'User-Agent': 'curl/7.16.3',
+          },
+      })          
       let body = String($.lodash_get(res, 'body'))
       const addr = body.match(/地址\s*(:|：)\s*(.*)/)[2]
       isCN = addr.includes('中国')
@@ -1015,7 +1017,7 @@ async function getProxyInfo(ip, provider) {
       const res = await http({
         ...(ip ? {} : getNodeOpt()),
 
-        url: `http://ip-api.com/json${p}?lang=zh-CN`,
+        url: `http://ip-api.com/json${p}?lang=en`,
         headers: {
           'User-Agent':
             'Mozilla/5.0 (iPhone CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/109.0.0.0',
