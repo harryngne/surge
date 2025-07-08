@@ -109,12 +109,12 @@ function API(e = "untitled", t = !1) {
         notify(e, t = "", a = "", c = {}) {
             const h = c["open-url"],
                 l = c["media-url"];
-            if (s && $notify(e, t, a, c), i && $notification.post(e, t, a + `${l ? "\n多媒体:" + l : ""}`, { url: h }), n) {
+            if (s && $notify(e, t, a, c), i && $notification.post(e, t, a + `${l ? "\nĐa phương tiện:" + l : ""}`, { url: h }), n) {
                 let s = {};
                 h && (s.openUrl = h), l && (s.mediaUrl = l), "{}" === JSON.stringify(s) ? $notification.post(e, t, a) : $notification.post(e, t, a, s)
             }
             if (o || u) {
-                const s = a + (h ? `\n点击跳转: ${h}` : "") + (l ? `\n多媒体: ${l}` : "");
+                const s = a + (h ? `\nNhấp vào để chuyển hướng: ${h}` : "") + (l ? `\nĐa phương tiện: ${l}` : "");
                 if (r) {
                     const n = require("push");
                     n.schedule({ title: e, body: (t ? t + "\n" : "") + s })
