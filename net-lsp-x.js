@@ -408,15 +408,17 @@ async function getDirectInfo(ip, provider) {
         headers: { 'User-Agent': 'curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3' },
       })
       let body = String($.lodash_get(res, 'body'))
-      const addr = body.match(/地址\s*(:|：)\s*(.*)/)[2]
+      const addr = body.match(/地址\s*(:|：)\s*(.*)/)?.[2] || ''
+      const isp = body.match(/运营商\s*(:|：)\s*(.*)/)?.[2] || ''
       isCN = addr.includes('中国')
-      CN_IP = ip || body.match(/IP\s*(:|：)\s*(.*?)\s/)[2]
+      CN_IP = ip || body.match(/IP\s*(:|：)\s*(.*?)\s/)?.[2] || ''
+      const countryCode = isCN ? 'CN' : 'VN' // fallback
       CN_INFO = [
-        ['Vị trí:', isCN ? getflag('CN') : undefined, addr.replace(/中国\s*/, '') || ''].filter(i => i).join(' '),
-        ['Nhà mạng:', body.match(/运营商\s*(:|：)\s*(.*)/)[2].replace(/中国\s*/, '') || ''].filter(i => i).join(' '),
+        ['Vị trí:', getflag(countryCode), addr.replace(/中国\s*/, '')].filter(Boolean).join(' '),
+        ['Nhà mạng:', isp.replace(/中国\s*/, '')].filter(Boolean).join(' ')
       ]
-        .filter(i => i)
-        .join('\n')
+      .filter(i => i)
+      .join('\n')
     } catch (e) {
       $.logErr(`${msg} 发生错误: ${e.message || e}`)
     }
@@ -1215,22 +1217,26 @@ function maskIP(ip) {
   }
 }
 
+
 function getflag(e) {
-  if ($.lodash_get(arg, 'FLAG', 1) == 1) {
-    try {
-      const t = e
-        .toUpperCase()
-        .split('')
-        .map(e => 127397 + e.charCodeAt())
-      // return String.fromCodePoint(...t).replace(/🇹🇼/g, '🇨🇳');
-      return String.fromCodePoint(...t).replace(/🇹🇼/g, '🇼🇸')
-    } catch (e) {
+    if ($.lodash_get(arg, 'FLAG', 1) == 1 && typeof e === 'string' && /^[A-Z]{2}$/.test(e.toUpperCase())) {
+      try {
+        const t = e
+          .toUpperCase()
+          .split('')
+          .map(c => 127397 + c.charCodeAt())
+        return String.fromCodePoint(...t).replace(/🇹🇼/g, '🇼🇸') // tránh hiển thị 🇹🇼 nếu cần
+      } catch (e) {
+        return ''
+      }
+    } else {
       return ''
     }
-  } else {
-    return ''
   }
-}
+  
+    
+  
+
 // 参数 与其他脚本逻辑一致
 function parseQueryString(url) {
   const queryString = url.split('?')[1] // 获取查询字符串部分
