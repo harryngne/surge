@@ -403,12 +403,10 @@ async function getDirectInfo(ip, provider) {
   const msg = `使用 ${provider || 'pingan'} 查询 ${ip ? ip : '分流'} 信息`
   if (provider == 'cip') {
     try {
-        const res = await http({
-          url: `http://ip-api.com/json/${ip ? encodeURIComponent(ip) : ''}?lang=en`,
-          headers: {
-            'User-Agent': 'curl/7.16.3',
-          },
-      })          
+      const res = await http({
+        url: `http://cip.cc/${ip ? encodeURIComponent(ip) : ''}`,
+        headers: { 'User-Agent': 'curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3' },
+      })
       let body = String($.lodash_get(res, 'body'))
       const addr = body.match(/地址\s*(:|：)\s*(.*)/)[2]
       isCN = addr.includes('中国')
