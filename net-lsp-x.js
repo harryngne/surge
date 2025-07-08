@@ -200,7 +200,7 @@ let content = ''
     if (CN_INFO) {
       CN_INFO = `\n${CN_INFO}`
     }
-    const policy_prefix = $.isQuanX() || $.isLoon() ? '节点: ' : '代理策略: '
+    const policy_prefix = $.isQuanX() || $.isLoon() ? 'Máy chủ: ' : 'Proxy đang sử dụng: '
     if (PROXY_POLICY === 'DIRECT') {
       PROXY_POLICY = `${policy_prefix}直连`
     } else if (PROXY_POLICY) {
@@ -217,7 +217,7 @@ let content = ''
     if (PROXY_INFO) {
       PROXY_INFO = `\n${PROXY_INFO}`
     }
-    title = `Chính sách proxy: ${maskAddr(PROXY_POLICY) || '-'}`
+    title = `${maskAddr(PROXY_POLICY) || '-'}`
     content = `${SSID}${LAN}${CN_POLICY}IP thật: ${maskIP(CN_IP) || '-'}${CN_IPv6}${maskAddr(
       CN_INFO
     )}\n\n${ENTRANCE.replace(/^入口:/, 'IP đầu vào:')}IP ra quốc tế: ${maskIP(PROXY_IP) || '-'}${PROXY_IPv6}${maskAddr(PROXY_INFO)}${PROXY_PRIVACY}`
@@ -440,7 +440,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = $.lodash_get(body, 'data.clientIp')
       CN_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           getflag(countryCode),
           $.lodash_get(body, 'data.provinceName'),
           $.lodash_get(body, 'data.cityName'),
@@ -525,7 +525,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = $.lodash_get(body, 'data.ip')
       CN_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           isCN ? getflag('CN') : undefined,
           $.lodash_get(body, 'data.location.0'),
           $.lodash_get(body, 'data.location.1'),
@@ -559,7 +559,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = $.lodash_get(body, 'data.addr')
       CN_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           isCN ? getflag('CN') : undefined,
           $.lodash_get(body, 'data.country'),
           $.lodash_get(body, 'data.province'),
@@ -593,7 +593,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = $.lodash_get(body, 'result.ip')
       CN_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           getflag(countryCode),
           $.lodash_get(body, 'result.country'),
           $.lodash_get(body, 'result.province'),
@@ -657,7 +657,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = ip || $.lodash_get(body, 'data.showapi_res_body.ip')
       CN_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           getflag(countryCode),
           $.lodash_get(body, 'data.showapi_res_body.country').replace(/\s*中国\s*/, ''),
           $.lodash_get(body, 'data.showapi_res_body.region'),
@@ -726,7 +726,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = ip || $.lodash_get(body, 'data.ip')
       CN_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           getflag(countryCode),
           $.lodash_get(body, 'data.country').replace(/\s*中国\s*/, ''),
           $.lodash_get(body, 'data.province'),
@@ -764,7 +764,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = ip || $.lodash_get(body, 'data.ip')
       CN_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           getflag(countryCode),
           $.lodash_get(body, 'data.country').replace(/\s*中国\s*/, ''),
           $.lodash_get(body, 'data.region'),
@@ -925,7 +925,7 @@ async function getProxyInfo(ip, provider) {
       PROXY_IP = ip || $.lodash_get(body, 'ip')
       PROXY_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           getflag($.lodash_get(body, 'country_code')),
           $.lodash_get(body, 'country'),
           $.lodash_get(body, 'region'),
@@ -1030,7 +1030,7 @@ async function getProxyInfo(ip, provider) {
       PROXY_IP = ip || $.lodash_get(body, 'query')
       PROXY_INFO = [
         [
-          '位置:',
+          'Vị trí:',
           getflag(body.countryCode),
           body.country.replace(/\s*中国\s*/, ''),
           body.regionName ? body.regionName.split(/\s+or\s+/)[0] : body.regionName,
@@ -1158,7 +1158,7 @@ async function ali(ip, key) {
 
   INFO = [
     [
-      '位置:',
+      'Vị trí:',
       getflag(countryCode),
       $.lodash_get(body, 'result.nation').replace(/中国\s*/, ''),
       $.lodash_get(body, 'result.province'),
