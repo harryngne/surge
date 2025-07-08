@@ -410,13 +410,12 @@ async function getDirectInfo(ip, provider) {
       let body = String($.lodash_get(res, 'body'))
       const addr = body.match(/地址\s*(:|：)\s*(.*)/)?.[2] || ''
       const isp = body.match(/运营商\s*(:|：)\s*(.*)/)?.[2] || ''
-      isCN = addr.includes('中国')
-      CN_IP = ip || body.match(/IP\s*(:|：)\s*(.*?)\s/)?.[2] || ''
-      const countryCode = isCN ? 'CN' : 'VN' // fallback
+      const countryName = addr.split(/\s+/)[0] || '不明'
+      const countryCode = getCountryCodeFromName(countryName) || 'US'
       CN_INFO = [
-        ['Vị trí:', getflag(countryCode), addr.replace(/中国\s*/, '')].filter(Boolean).join(' '),
-        ['Nhà mạng:', isp.replace(/中国\s*/, '')].filter(Boolean).join(' ')
-      ]
+        ['Vị trí:', getflag(countryCode), addr.replace(/^中国\s*/, '')].filter(Boolean).join(' '),
+        ['Nhà mạng:', isp.replace(/^中国\s*/, '')].filter(Boolean).join(' ')
+      ].filter(Boolean).join('\n')
       .filter(i => i)
       .join('\n')
     } catch (e) {
@@ -1217,22 +1216,103 @@ function maskIP(ip) {
   }
 }
 
+function getCountryCodeFromName(name) {
+    const map = {
+      '越南': 'VN',
+      '中国': 'CN',
+      '香港': 'HK',
+      '澳门': 'MO',
+      '台湾': 'TW',
+      '日本': 'JP',
+      '韩国': 'KR',
+      '朝鲜': 'KP',
+      '新加坡': 'SG',
+      '泰国': 'TH',
+      '马来西亚': 'MY',
+      '菲律宾': 'PH',
+      '印尼': 'ID',
+      '印度': 'IN',
+      '巴基斯坦': 'PK',
+      '孟加拉国': 'BD',
+      '斯里兰卡': 'LK',
+      '阿联酋': 'AE',
+      '沙特阿拉伯': 'SA',
+      '卡塔尔': 'QA',
+      '以色列': 'IL',
+      '土耳其': 'TR',
+      '俄罗斯': 'RU',
+      '乌克兰': 'UA',
+      '白俄罗斯': 'BY',
+      '法国': 'FR',
+      '德国': 'DE',
+      '意大利': 'IT',
+      '西班牙': 'ES',
+      '葡萄牙': 'PT',
+      '英国': 'GB',
+      '爱尔兰': 'IE',
+      '荷兰': 'NL',
+      '比利时': 'BE',
+      '瑞士': 'CH',
+      '瑞典': 'SE',
+      '挪威': 'NO',
+      '芬兰': 'FI',
+      '波兰': 'PL',
+      '捷克': 'CZ',
+      '匈牙利': 'HU',
+      '罗马尼亚': 'RO',
+      '保加利亚': 'BG',
+      '希腊': 'GR',
+      '塞尔维亚': 'RS',
+      '克罗地亚': 'HR',
+      '斯洛文尼亚': 'SI',
+      '斯洛伐克': 'SK',
+      '爱沙尼亚': 'EE',
+      '拉脱维亚': 'LV',
+      '立陶宛': 'LT',
+      '美国': 'US',
+      '加拿大': 'CA',
+      '墨西哥': 'MX',
+      '巴西': 'BR',
+      '阿根廷': 'AR',
+      '智利': 'CL',
+      '哥伦比亚': 'CO',
+      '秘鲁': 'PE',
+      '委内瑞拉': 'VE',
+      '南非': 'ZA',
+      '尼日利亚': 'NG',
+      '埃及': 'EG',
+      '澳大利亚': 'AU',
+      '新西兰': 'NZ',
+      '蒙古': 'MN',
+      '缅甸': 'MM',
+      '老挝': 'LA',
+      '柬埔寨': 'KH',
+      '不明': ''
+    }
+    return map[name] || ''
+  }
+  
 
-function getflag(e) {
-    if ($.lodash_get(arg, 'FLAG', 1) == 1 && typeof e === 'string' && /^[A-Z]{2}$/.test(e.toUpperCase())) {
+
+function getflag(code) {
+    if (
+      $.lodash_get(arg, 'FLAG', 1) == 1 &&
+      typeof code === 'string' &&
+      /^[A-Z]{2}$/.test(code.toUpperCase())
+    ) {
       try {
-        const t = e
+        const flagCodePoints = code
           .toUpperCase()
           .split('')
           .map(c => 127397 + c.charCodeAt())
-        return String.fromCodePoint(...t).replace(/🇹🇼/g, '🇼🇸') // tránh hiển thị 🇹🇼 nếu cần
-      } catch (e) {
+        return String.fromCodePoint(...flagCodePoints).replace(/🇹🇼/g, '🇼🇸')
+      } catch {
         return ''
       }
-    } else {
-      return ''
     }
+    return ''
   }
+  
   
     
   
