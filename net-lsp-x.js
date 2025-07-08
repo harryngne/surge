@@ -7,7 +7,7 @@ if (typeof $argument != 'undefined') {
 } else {
   arg = {}
 }
-$.log(`Được truyền vào $argument: ${$.toStr(arg)}`)
+$.log(`传入的 $argument: ${$.toStr(arg)}`)
 // if (typeof $loon === 'string') {
 //   // const build = $loon.match(/\(\s*?(\d+)\s*?\)\s*?$/)?.[1]
 //   // $.log(`当前 Loon Build: ${build}`)
@@ -16,22 +16,22 @@ $.log(`Được truyền vào $argument: ${$.toStr(arg)}`)
 
 arg = { ...arg, ...$.getjson(NAME, {}) }
 
-$.log(`Sau khi đọc các tham số từ bộ nhớ lưu trữ cố định: ${$.toStr(arg)}`)
+$.log(`从持久化存储读取参数后: ${$.toStr(arg)}`)
 
 if (typeof $environment !== 'undefined' && $.lodash_get($environment, 'executor') === 'event-network') {
-  $.log(`Tập lệnh sự kiện QX không thể có tham số. Sửa môi trường đang chạy.`)
+  $.log(`QX 事件脚本不能带参 修正运行环境`)
   $.lodash_set(arg, 'TYPE', 'EVENT')
 }
 
 if (!isInteraction() && !isRequest() && !isTile() && !isPanel()) {
-  $.log(`Nếu tham số để trống, môi trường vận hành sẽ được hiệu chỉnh trong trường hợp vận hành không tương tác, không theo yêu cầu và không theo bảng điều khiển.`)
+  $.log(`参数为空 非可交互操作, 非请求, 非面板的情况下, 修正运行环境`)
   $.lodash_set(arg, 'TYPE', 'EVENT')
 }
 
 if (isRequest()) {
   // $.log($.toStr($request))
   arg = { ...arg, ...parseQueryString($request.url) }
-  $.log(`Sau khi đọc các tham số từ yêu cầu: ${$.toStr(arg)}`)
+  $.log(`从请求后读取参数后: ${$.toStr(arg)}`)
 }
 
 const keya = 'spe'
@@ -51,13 +51,13 @@ let content = ''
 !(async () => {
   if ($.lodash_get(arg, 'TYPE') === 'EVENT') {
     const eventDelay = parseFloat($.lodash_get(arg, 'EVENT_DELAY') || 3)
-    $.log(`Thay đổi mạng, đợi ${eventDelay} giây trước khi bắt đầu truy vấn`)
+    $.log(`网络变化, 等待 ${eventDelay} 秒后开始查询`)
     if (eventDelay) {
       await $.wait(1000 * eventDelay)
     }
   }
   if (isTile()) {
-    await notify('Thông tin mạng', 'Bảng điều khiển', 'Bắt đầu truy vấn')
+    await notify('网络信息', '面板', '开始查询')
   }
 
   let SSID = ''
@@ -134,7 +134,7 @@ let content = ''
       $.setjson({ CN_IP, PROXY_IP, CN_IPv6, PROXY_IPv6 }, 'lastNetworkInfoEvent')
     } else {
       // 否则 直接结束
-      $.log('Thông tin mạng không thay đổi, không tiếp tục')
+      $.log('网络信息未发生变化, 不继续')
       continueFlag = false
     }
   }
@@ -146,13 +146,13 @@ let content = ''
     if (ENTRANCE_IP) {
       const { IP: resolvedIP } = await resolveDomain(ENTRANCE_IP)
       if (resolvedIP) {
-        $.log(`Phân giải tên miền đầu vào: ${ENTRANCE_IP} ➟ ${resolvedIP}`)
+        $.log(`入口域名解析: ${ENTRANCE_IP} ➟ ${resolvedIP}`)
         ENTRANCE_IP = resolvedIP
       }
     }
     if (ENTRANCE_IP && ENTRANCE_IP !== PROXY_IP) {
       const entranceDelay = parseFloat($.lodash_get(arg, 'ENTRANCE_DELAY') || 0)
-      $.log(`IP trung chuyển: ${ENTRANCE_IP} và IP đích: ${PROXY_IP} không trùng, đợi ${entranceDelay} giây rồi truy vấn đầu vào`)
+      $.log(`入口: ${ENTRANCE_IP} 与落地 IP: ${PROXY_IP} 不一致, 等待 ${entranceDelay} 秒后查询入口`)
       if (entranceDelay) {
         await $.wait(1000 * entranceDelay)
       }
@@ -163,7 +163,7 @@ let content = ''
         ])
       // 国内接口的国外 IP 解析过于离谱 排除掉
       if (ENTRANCE_INFO1 && isCN) {
-        ENTRANCE = `IP trung chuyển: ${maskIP(ENTRANCE_IP) || '-'}\n${maskAddr(ENTRANCE_INFO1)}`
+        ENTRANCE = `入口: ${maskIP(ENTRANCE_IP) || '-'}\n${maskAddr(ENTRANCE_INFO1)}`
       }
       if (ENTRANCE_INFO2) {
         if (ENTRANCE) {
@@ -171,7 +171,7 @@ let content = ''
             ENTRANCE_INFO2.replace(/^(.*?):/gim, '$1²:')
           )}`
         } else {
-          ENTRANCE = `IP trung chuyển: ${maskIP(ENTRANCE_IP) || '-'}\n${maskAddr(ENTRANCE_INFO2)}`
+          ENTRANCE = `入口: ${maskIP(ENTRANCE_IP) || '-'}\n${maskAddr(ENTRANCE_INFO2)}`
         }
       }
     }
@@ -193,16 +193,16 @@ let content = ''
       if (CN_POLICY === 'DIRECT') {
         CN_POLICY = ``
       } else {
-        CN_POLICY = `Chính sách: ${maskAddr(CN_POLICY) || '-'}\n`
+        CN_POLICY = `策略: ${maskAddr(CN_POLICY) || '-'}\n`
       }
     }
 
     if (CN_INFO) {
       CN_INFO = `\n${CN_INFO}`
     }
-    const policy_prefix = $.isQuanX() || $.isLoon() ? 'Nút mạng: ' : 'Proxy đang chạy: '
+    const policy_prefix = $.isQuanX() || $.isLoon() ? '节点: ' : '代理策略: '
     if (PROXY_POLICY === 'DIRECT') {
-      PROXY_POLICY = `${policy_prefix} Kết nối trực tiếp`
+      PROXY_POLICY = `${policy_prefix}直连`
     } else if (PROXY_POLICY) {
       PROXY_POLICY = `${policy_prefix}${maskAddr(PROXY_POLICY) || '-'}`
     } else {
@@ -218,25 +218,25 @@ let content = ''
       PROXY_INFO = `\n${PROXY_INFO}`
     }
     title = `${PROXY_POLICY}`
-    content = `${SSID}${LAN}${CN_POLICY}IP gốc: ${maskIP(CN_IP) || '-'}${CN_IPv6}${maskAddr(
+    content = `${SSID}${LAN}${CN_POLICY}IP: ${maskIP(CN_IP) || '-'}${CN_IPv6}${maskAddr(
       CN_INFO
-    )}\n\n${ENTRANCE} IP Proxy: ${maskIP(PROXY_IP) || '-'}${PROXY_IPv6}${maskAddr(PROXY_INFO)}${PROXY_PRIVACY}`
+    )}\n\n${ENTRANCE}落地 IP: ${maskIP(PROXY_IP) || '-'}${PROXY_IPv6}${maskAddr(PROXY_INFO)}${PROXY_PRIVACY}`
     if (!isInteraction()) {
-      content = `${content}\nThời điểm chạy: ${new Date().toTimeString().split(' ')[0]}`
+      content = `${content}\n执行时间: ${new Date().toTimeString().split(' ')[0]}`
     }
 
-    title = title || 'Thông tin mạng 𝕏'
+    title = title || '网络信息 𝕏'
     if (isTile()) {
-      await notify('Thông tin mạng', 'Bảng điều khiển', 'Truy vấn hoàn tất')
+      await notify('网络信息', '面板', '查询完成')
     } else if (!isPanel()) {
       if ($.lodash_get(arg, 'TYPE') === 'EVENT') {
         await notify(
           `🄳 ${maskIP(CN_IP) || '-'} 🅿 ${maskIP(PROXY_IP) || '-'}`.replace(/\n+/g, '\n').replace(/\ +/g, ' ').trim(),
-          `${maskAddr(CN_INFO.replace(/(Vị trí|Nhà mạng).*?:/g, '').replace(/\n/g, ' '))}`
+          `${maskAddr(CN_INFO.replace(/(位置|运营商).*?:/g, '').replace(/\n/g, ' '))}`
             .replace(/\n+/g, '\n')
             .replace(/\ +/g, ' ')
             .trim(),
-          `${maskAddr(PROXY_INFO.replace(/(Vị trí|Nhà mạng).*?:/g, '').replace(/\n/g, ' '))}${
+          `${maskAddr(PROXY_INFO.replace(/(位置|运营商).*?:/g, '').replace(/\n/g, ' '))}${
             CN_IPv6 ? `\n🄳 ${CN_IPv6.replace(/\n+/g, '')}` : ''
           }${PROXY_IPv6 ? `\n🅿 ${PROXY_IPv6.replace(/\n+/g, '')}` : ''}${SSID ? `\n${SSID}` : '\n'}${LAN}`
             .replace(/\n+/g, '\n')
@@ -244,7 +244,7 @@ let content = ''
             .trim()
         )
       } else {
-        await notify('Thông tin mạng 𝕏', title, content)
+        await notify('网络信息 𝕏', title, content)
       }
     }
   }
@@ -255,7 +255,7 @@ let content = ''
     const msg = `${$.lodash_get(e, 'message') || $.lodash_get(e, 'error') || e}`
     title = `❌`
     content = msg
-    await notify('Thông tin mạng 𝕏', title, content)
+    await notify('网络信息 𝕏', title, content)
   })
   .finally(async () => {
     if (isRequest()) {
@@ -290,7 +290,7 @@ let content = ''
         .replace(/\n/g, '<br/>')}</div>`
       // $.log(html)
       $.done({
-        title: 'Thông tin mạng 𝕏',
+        title: '网络信息 𝕏',
         htmlMessage: html,
       })
     } else {
@@ -317,7 +317,7 @@ async function getEntranceInfo() {
         POLICY = $.lodash_get($environment, 'params.node')
       }
     } catch (e) {
-      $.logErr(`Lỗi khi lấy thông tin đầu vào ${e.message || e}`)
+      $.logErr(`获取入口信息 发生错误: ${e.message || e}`)
       $.logErr(e)
       $.logErr($.toStr(e))
     }
@@ -399,7 +399,7 @@ async function getDirectInfo(ip, provider) {
   let CN_IP
   let CN_INFO
   let isCN
-  const msg = `Sử dụng ${provider || 'pingan'} để truy vấn thông tin của ${ip ? ip : 'phân luồng'}`
+  const msg = `使用 ${provider || 'pingan'} 查询 ${ip ? ip : '分流'} 信息`
   if (provider == 'cip') {
     try {
       const res = await http({
@@ -407,12 +407,12 @@ async function getDirectInfo(ip, provider) {
         headers: { 'User-Agent': 'curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3' },
       })
       let body = String($.lodash_get(res, 'body'))
-      const addr = body.match(/Địa chỉ\s*(:|：)\s*(.*)/)[2]
-      isCN = addr.includes('Trung Quốc')
+      const addr = body.match(/地址\s*(:|：)\s*(.*)/)[2]
+      isCN = addr.includes('中国')
       CN_IP = ip || body.match(/IP\s*(:|：)\s*(.*?)\s/)[2]
       CN_INFO = [
-        ['Vị trí:', isCN ? getflag('CN') : undefined, addr.replace(/Trung Quốc\s*/, '') || ''].filter(i => i).join(' '),
-        ['Nhà mạng:', body.match(/Nhà mạng\s*(:|：)\s*(.*)/)[2].replace(/Trung Quốc\s*/, '') || ''].filter(i => i).join(' '),
+        ['位置:', isCN ? getflag('CN') : undefined, addr.replace(/中国\s*/, '') || ''].filter(i => i).join(' '),
+        ['运营商:', body.match(/运营商\s*(:|：)\s*(.*)/)[2].replace(/中国\s*/, '') || ''].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -437,7 +437,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = $.lodash_get(body, 'data.clientIp')
       CN_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           getflag(countryCode),
           $.lodash_get(body, 'data.provinceName'),
           $.lodash_get(body, 'data.cityName'),
@@ -445,7 +445,7 @@ async function getDirectInfo(ip, provider) {
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'data.owner')].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'data.owner')].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -467,11 +467,11 @@ async function getDirectInfo(ip, provider) {
       } catch (e) {}
       const data = body?.data
       const ip = body?.ip
-      isCN = data?.country === 'Trung Quốc'
+      isCN = data?.country === '中国'
       CN_IP = ip
       CN_INFO = [
-        ['Vị trí:', isCN ? getflag('CN') : '', data?.prov, data?.city, data?.district].filter(i => i).join(' '),
-        ['Nhà mạng:', data?.isp || data?.owner].filter(i => i).join(' '),
+        ['位置:', isCN ? getflag('CN') : '', data?.prov, data?.city, data?.district].filter(i => i).join(' '),
+        ['运营商:', data?.isp || data?.owner].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -497,8 +497,8 @@ async function getDirectInfo(ip, provider) {
       isCN = countryCode === 'CN'
       CN_IP = ip
       CN_INFO = [
-        ['Vị trí:', getflag(countryCode), data?.province, data?.city].filter(i => i).join(' '),
-        ['Nhà mạng:', data?.isp || data?.org].filter(i => i).join(' '),
+        ['位置:', getflag(countryCode), data?.province, data?.city].filter(i => i).join(' '),
+        ['运营商:', data?.isp || data?.org].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -518,11 +518,11 @@ async function getDirectInfo(ip, provider) {
       try {
         body = JSON.parse(body)
       } catch (e) {}
-      isCN = $.lodash_get(body, 'data.location.0') === 'Trung Quốc'
+      isCN = $.lodash_get(body, 'data.location.0') === '中国'
       CN_IP = $.lodash_get(body, 'data.ip')
       CN_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           isCN ? getflag('CN') : undefined,
           $.lodash_get(body, 'data.location.0'),
           $.lodash_get(body, 'data.location.1'),
@@ -530,7 +530,7 @@ async function getDirectInfo(ip, provider) {
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'data.location.4')].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'data.location.4')].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -552,11 +552,11 @@ async function getDirectInfo(ip, provider) {
         body = JSON.parse(body)
       } catch (e) {}
 
-      isCN = $.lodash_get(body, 'data.country') === 'Trung Quốc'
+      isCN = $.lodash_get(body, 'data.country') === '中国'
       CN_IP = $.lodash_get(body, 'data.addr')
       CN_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           isCN ? getflag('CN') : undefined,
           $.lodash_get(body, 'data.country'),
           $.lodash_get(body, 'data.province'),
@@ -564,7 +564,7 @@ async function getDirectInfo(ip, provider) {
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'data.isp')].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'data.isp')].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -590,7 +590,7 @@ async function getDirectInfo(ip, provider) {
       CN_IP = $.lodash_get(body, 'result.ip')
       CN_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           getflag(countryCode),
           $.lodash_get(body, 'result.country'),
           $.lodash_get(body, 'result.province'),
@@ -598,7 +598,7 @@ async function getDirectInfo(ip, provider) {
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'result.operator')].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'result.operator')].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -624,9 +624,9 @@ async function getDirectInfo(ip, provider) {
       isCN = countryCode === 'CN'
       CN_IP = $.lodash_get(body, 'ip')
       CN_INFO = CN_INFO = [
-        ['Vị trí:', getflag(countryCode), $.lodash_get(body, 'desc').replace(/Trung Quốc\s*/, '')].filter(i => i).join(' '),
+        ['位置:', getflag(countryCode), $.lodash_get(body, 'desc').replace(/中国\s*/, '')].filter(i => i).join(' '),
         $.lodash_get(arg, 'ORG') == 1
-          ? ['Tổ chức:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' ')
+          ? ['组织:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' ')
           : undefined,
       ]
         .filter(i => i)
@@ -654,16 +654,16 @@ async function getDirectInfo(ip, provider) {
       CN_IP = ip || $.lodash_get(body, 'data.showapi_res_body.ip')
       CN_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           getflag(countryCode),
-          $.lodash_get(body, 'data.showapi_res_body.country').replace(/\s*Trung Quốc\s*/, ''),
+          $.lodash_get(body, 'data.showapi_res_body.country').replace(/\s*中国\s*/, ''),
           $.lodash_get(body, 'data.showapi_res_body.region'),
           $.lodash_get(body, 'data.showapi_res_body.city'),
           $.lodash_get(body, 'data.showapi_res_body.county'),
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'data.showapi_res_body.isp') || '-'].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'data.showapi_res_body.isp') || '-'].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -723,16 +723,16 @@ async function getDirectInfo(ip, provider) {
       CN_IP = ip || $.lodash_get(body, 'data.ip')
       CN_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           getflag(countryCode),
-          $.lodash_get(body, 'data.country').replace(/\s*Trung Quốc\s*/, ''),
+          $.lodash_get(body, 'data.country').replace(/\s*中国\s*/, ''),
           $.lodash_get(body, 'data.province'),
           $.lodash_get(body, 'data.city'),
           $.lodash_get(body, 'data.district'),
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'data.operator') || $.lodash_get(body, 'data.isp') || '-']
+        ['运营商:', $.lodash_get(body, 'data.operator') || $.lodash_get(body, 'data.isp') || '-']
           .filter(i => i)
           .join(' '),
       ]
@@ -761,17 +761,17 @@ async function getDirectInfo(ip, provider) {
       CN_IP = ip || $.lodash_get(body, 'data.ip')
       CN_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           getflag(countryCode),
-          $.lodash_get(body, 'data.country').replace(/\s*Trung Quốc\s*/, ''),
+          $.lodash_get(body, 'data.country').replace(/\s*中国\s*/, ''),
           $.lodash_get(body, 'data.region'),
           $.lodash_get(body, 'data.city'),
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'data.isp') || '-'].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'data.isp') || '-'].filter(i => i).join(' '),
         $.lodash_get(arg, 'ORG') == 1
-          ? ['Tổ chức:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' ')
+          ? ['组织:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' ')
           : undefined,
       ]
         .filter(i => i)
@@ -821,7 +821,7 @@ async function getProxyInfo(ip, provider) {
   let PROXY_INFO
   let PROXY_PRIVACY
 
-  const msg = `Sử dụng ${provider || 'ipapi'} để truy vấn thông tin của ${ip ? ip : 'phân luồng'}`
+  const msg = `使用 ${provider || 'ipapi'} 查询 ${ip ? ip : '分流'} 信息`
 
   if (provider == 'ipinfo') {
     try {
@@ -851,10 +851,10 @@ async function getProxyInfo(ip, provider) {
       } catch (e) {}
       PROXY_IP = ip || $.lodash_get(body, 'ip')
       PROXY_INFO = [
-        ['Vị trí:', getflag(body.country), body.country.replace(/\s*Trung Quốc\s*/, ''), body.region, body.city]
+        ['位置:', getflag(body.country), body.country.replace(/\s*中国\s*/, ''), body.region, body.city]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -880,7 +880,7 @@ async function getProxyInfo(ip, provider) {
       PROXY_IP = ip || $.lodash_get(body, 'ip')
       PROXY_INFO = [
         [
-          'Vị trí¹:',
+          '位置¹:',
           getflag($.lodash_get(body, 'geoip1.countrycode')),
           $.lodash_get(body, 'geoip1.country'),
           $.lodash_get(body, 'geoip1.region'),
@@ -889,7 +889,7 @@ async function getProxyInfo(ip, provider) {
           .filter(i => i)
           .join(' '),
         [
-          'Vị trí²:',
+          '位置²:',
           getflag($.lodash_get(body, 'geoip2.countrycode')),
           $.lodash_get(body, 'geoip2.country'),
           $.lodash_get(body, 'geoip2.region'),
@@ -897,7 +897,7 @@ async function getProxyInfo(ip, provider) {
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', body.isp || body.org || body.asn].filter(i => i).join(' '),
+        ['运营商:', body.isp || body.org || body.asn].filter(i => i).join(' '),
       ]
         .filter(i => i)
         .join('\n')
@@ -922,7 +922,7 @@ async function getProxyInfo(ip, provider) {
       PROXY_IP = ip || $.lodash_get(body, 'ip')
       PROXY_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           getflag($.lodash_get(body, 'country_code')),
           $.lodash_get(body, 'country'),
           $.lodash_get(body, 'region'),
@@ -931,9 +931,9 @@ async function getProxyInfo(ip, provider) {
           .filter(i => i)
           .join(' '),
 
-        ['Nhà mạng:', body.isp || body.organization].filter(i => i).join(' '),
+        ['运营商:', body.isp || body.organization].filter(i => i).join(' '),
         $.lodash_get(arg, 'ORG') == 1
-          ? ['Tổ chức:', $.lodash_get(body, 'asn_organization') || '-'].filter(i => i).join(' ')
+          ? ['组织:', $.lodash_get(body, 'asn_organization') || '-'].filter(i => i).join(' ')
           : undefined,
 
         $.lodash_get(arg, 'ASN') == 1 ? ['ASN:', $.lodash_get(body, 'asn') || '-'].filter(i => i).join(' ') : undefined,
@@ -974,12 +974,12 @@ async function getProxyInfo(ip, provider) {
 
       PROXY_IP = ip || $.lodash_get(body, 'ip')
       PROXY_INFO = [
-        ['Vị trí:', getflag(body.country_code), body.country.replace(/\s*Trung Quốc\s*/, ''), body.region, body.city]
+        ['位置:', getflag(body.country_code), body.country.replace(/\s*中国\s*/, ''), body.region, body.city]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', $.lodash_get(body, 'connection.isp') || '-'].filter(i => i).join(' '),
+        ['运营商:', $.lodash_get(body, 'connection.isp') || '-'].filter(i => i).join(' '),
         $.lodash_get(arg, 'ORG') == 1
-          ? ['Tổ chức:', $.lodash_get(body, 'connection.org') || '-'].filter(i => i).join(' ')
+          ? ['组织:', $.lodash_get(body, 'connection.org') || '-'].filter(i => i).join(' ')
           : undefined,
 
         $.lodash_get(arg, 'ASN') == 1
@@ -1000,9 +1000,9 @@ async function getProxyInfo(ip, provider) {
           security.push(`${key.toUpperCase()}: ${securityMap[securityObj[key]]}`)
         })
         if (security.length > 0) {
-          PROXY_PRIVACY = `Bảo mật quyền riêng tư:\n${security.join('\n')}`
+          PROXY_PRIVACY = `隐私安全:\n${security.join('\n')}`
         } else {
-          PROXY_PRIVACY = `Bảo mật quyền riêng tư: -`
+          PROXY_PRIVACY = `隐私安全: -`
         }
       }
     } catch (e) {
@@ -1027,17 +1027,17 @@ async function getProxyInfo(ip, provider) {
       PROXY_IP = ip || $.lodash_get(body, 'query')
       PROXY_INFO = [
         [
-          'Vị trí:',
+          '位置:',
           getflag(body.countryCode),
-          body.country.replace(/\s*Trung Quốc\s*/, ''),
+          body.country.replace(/\s*中国\s*/, ''),
           body.regionName ? body.regionName.split(/\s+or\s+/)[0] : body.regionName,
           body.city,
         ]
           .filter(i => i)
           .join(' '),
-        ['Nhà mạng:', body.isp || body.org || body.as].filter(i => i).join(' '),
+        ['运营商:', body.isp || body.org || body.as].filter(i => i).join(' '),
         $.lodash_get(arg, 'ORG') == 1
-          ? ['Tổ chức:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' ')
+          ? ['组织:', $.lodash_get(body, 'org') || '-'].filter(i => i).join(' ')
           : undefined,
 
         $.lodash_get(arg, 'ASN') == 1 ? ['ASN:', $.lodash_get(body, 'as') || '-'].filter(i => i).join(' ') : undefined,
@@ -1045,7 +1045,7 @@ async function getProxyInfo(ip, provider) {
         .filter(i => i)
         .join('\n')
     } catch (e) {
-      $.logErr(`${msg} Xảy ra lỗi: ${e.message || e}`)
+      $.logErr(`${msg} 发生错误: ${e.message || e}`)
     }
   }
 
@@ -1124,12 +1124,12 @@ async function ipim(ip) {
   const isp = body.match(/(^|\s+)Isp\s*(:|：)\s*(.*)/m)?.[3]
   const org = body.match(/(^|\s+)Org\s*(:|：)\s*(.*)/m)?.[3]
 
-  isCN = country.includes('Trung Quốc')
+  isCN = country.includes('中国')
 
   INFO = [
-    ['Vị trí:', isCN ? getflag('CN') : getflag(country), country, province, city, district].filter(i => i).join(' '),
-    ['Nhà mạng:', isp || '-'].filter(i => i).join(' '),
-    $.lodash_get(arg, 'ORG') == 1 ? ['Tổ chức:', org || '-'].filter(i => i).join(' ') : undefined,
+    ['位置:', isCN ? getflag('CN') : getflag(country), country, province, city, district].filter(i => i).join(' '),
+    ['运营商:', isp || '-'].filter(i => i).join(' '),
+    $.lodash_get(arg, 'ORG') == 1 ? ['组织:', org || '-'].filter(i => i).join(' ') : undefined,
   ]
     .filter(i => i)
     .join('\n')
@@ -1155,9 +1155,9 @@ async function ali(ip, key) {
 
   INFO = [
     [
-      'Vị trí:',
+      '位置:',
       getflag(countryCode),
-      $.lodash_get(body, 'result.nation').replace(/Trung Quốc\s*/, ''),
+      $.lodash_get(body, 'result.nation').replace(/中国\s*/, ''),
       $.lodash_get(body, 'result.province'),
       $.lodash_get(body, 'result.city'),
       $.lodash_get(body, 'result.district'),
