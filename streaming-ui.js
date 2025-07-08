@@ -55,7 +55,7 @@ let args = getArgs();
     let dateStr = `${day}/${month}/${year}`;
 
   let panel_result = {
-    title: `${args.title || "Mở khóa Media"} | ${timeStr} ${dateStr}`,
+    title: `Mở khóa Media | ${timeStr} ${dateStr}`,
     content: '',
     icon: args.icon || "eye.slash.circle.fill",
     "icon-color": args.color || "#ffb621",
