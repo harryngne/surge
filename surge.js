@@ -194,37 +194,28 @@ async function m(e, t) {
   )
     (cn = !1), (w = "Các nút được kết nối trực tiếp:");
   else {
-    if (0 === e.code && "中国" === e.data.country) {
-      let {
-        province: t,
-        isp: n,
-        city: i,
-        countryCode: o,
-        asn,
-        as_name
-      } = e.data;
-      let c = e.tk;
-      console.log("ik" + JSON.stringify(e, null, 2));
-      cn = !0;
-      if (s) h = u(h);
-      f =
-        "Quốc gia: \t" +
-        d(o) +
-        t +
-        " " +
-        i +
-        "\nIP chuyển tuyến: \t" +
-        h +
-        ": " +
-        c +
-        "ms\nISP: \t" +
-        n +
-        r +
-        "\nASN: \t" +
-        (asn || "-") +
-        " " +
-        (as_name || "") +
-        "\n---------------------\n";
+    if (("" === w && (w = "Quốc gia:"), !N || $)) {
+      const e = await m(`https://api-v3.speedtest.cn/ip?ip=${h}`, o);
+      if (0 === e.code && "中国" === e.data.country) {
+        let { province: t, isp: n, city: i, countryCode: o } = e.data,
+          c = e.tk;
+        console.log("ik" + JSON.stringify(e, null, 2)),
+          (cn = !0),
+          s && (h = u(h)),
+          (f =
+            "Quốc gia: \t" +
+            d(o) +
+            t +
+            " " +
+            i +
+            "\nIP chuyển tuyến: \t" +
+            h +
+            ": " +
+            c +
+            "ms\nISP: \t" +
+            n +
+            r +
+            "\n---------------------\n");
       } else
         (cn = !1),
           console.log("ik" + JSON.stringify(e)),
