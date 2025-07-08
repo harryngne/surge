@@ -950,7 +950,7 @@ async function getProxyInfo(ip, provider) {
 
         url: `https://ipwhois.app/widget.php`,
         params: {
-          lang: 'en',
+          lang: 'zh-CN',
           ip,
         },
         headers: {
@@ -1014,7 +1014,7 @@ async function getProxyInfo(ip, provider) {
       const res = await http({
         ...(ip ? {} : getNodeOpt()),
 
-        url: `http://ip-api.com/json${p}?lang=en`,
+        url: `http://ip-api.com/json${p}?lang=zh-CN`,
         headers: {
           'User-Agent':
             'Mozilla/5.0 (iPhone CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/109.0.0.0',
