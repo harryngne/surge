@@ -1,165 +1,153 @@
 // vn_fuel_price_petrolimex.js
-// Surge Panel: Giá xăng dầu VN theo PETROLIMEX, chia Vùng 1/Vùng 2
-// Có thêm Xăng E10 RON95-III (nếu Petrolimex công bố), đơn vị đồng/lít.
+// Surge Panel: Giá xăng dầu VN từ Petrolimex (đọc trực tiếp div .header__pricePetrol)
+// Chia Vùng 1/Vùng 2, đơn vị đồng/lít, có E10 RON95-III. Fallback: news pages / PVOIL.
 
-const PETROLIMEX_SOURCES = [
+const PLX_HOME = "https://www.petrolimex.com.vn/";
+const PLX_NEWS = [
   "https://www.petrolimex.com.vn/ndi/tin-gia-xang-dau.html",
   "https://www.petrolimex.com.vn/ndi/Thong-tin-dieu-hanh-gia-xang-dau.html",
-  "https://www.petrolimex.com.vn/",
 ];
 const PVOIL_FALLBACK = "https://www.pvoil.com.vn/tin-gia-xang-dau";
 
-// ===== Helpers =====
-function toNumVND(s) {
+function H() {
+  return {
+    "User-Agent":
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+    "Accept-Language": "vi-VN,vi;q=0.9",
+  };
+}
+
+function httpGet(url, cb) { $httpClient.get({ url, headers: H() }, cb); }
+function fmt(v) { return v == null ? "—" : v.toLocaleString("vi-VN") + " đ/lít"; }
+function toNum(s) {
   if (!s) return null;
   const m = String(s).match(/(\d{1,3}(?:[.,]\d{3})+|\d{4,7})/);
   return m ? parseInt(m[1].replace(/[.,]/g, ""), 10) : null;
 }
-function fmt(v) {
-  return v == null ? "—" : v.toLocaleString("vi-VN") + " đ/lít";
-}
-function extractCycle(text) {
+function flat(html) { return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); }
+function cycleFrom(t) {
   const m =
-    text.match(/15:00[^\n]{0,100}?(?:ngày|Ngày)\s*\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}/i) ||
-    text.match(/từ\s*15[:. ]00[^\n]{0,80}(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);
+    t.match(/15:00[^\n]{0,100}?(?:ngày|Ngày)\s*\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}/i) ||
+    t.match(/cập nhật lúc\s*15[:. ]00[^\n]{0,80}\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}/i);
   return m ? m[0].replace(/\s+/g, " ").trim() : "Kỳ điều hành gần nhất";
 }
-function flattenHTML(html) {
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
-function doneError(msg) {
-  $done({ title: "Giá xăng dầu VN", content: msg, icon: "fuelpump.fill", "icon-color": "#FF3B30" });
-}
-function okPanel(title, content) {
-  $done({ title, content, icon: "fuelpump.fill", "icon-color": "#FF9500" });
-}
+function ok(title, content) { $done({ title, content, icon: "fuelpump.fill", "icon-color": "#FF9500" }); }
+function fail(msg) { $done({ title: "Giá xăng dầu VN", content: msg, icon: "fuelpump.fill", "icon-color": "#FF3B30" }); }
 
-// ===== Parse Petrolimex =====
-function parseRegionPrices(text) {
+// ---- Parse khối header__pricePetrol ----
+function parseHeaderPriceDiv(html) {
+  const m = html.match(/<div[^>]+class=["'][^"']*header__pricePetrol[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
+  if (!m) return null;
+  const inner = m[1];
+
+  // Lấy từng "hàng": tên sản phẩm + 2 cột số
+  // Convert sang text phẳng để regex dễ bắt 2 giá sau nhãn
+  const t = flat(inner);
+
+  // Map nhãn → các mẫu tìm kiếm (để chịu được thay đổi nhỏ)
   const LABELS = [
-    { key: "RON95_III", patterns: ["RON ?95-?III", "Xăng RON ?95"] },
-    { key: "E5_RON92_II", patterns: ["E5\\s*RON\\s*92-?II", "Xăng E5\\s*RON92"] },
-    { key: "E10_RON95_III", patterns: ["E10\\s*RON ?95-?III", "Xăng E10\\s*RON95"] },
-    { key: "DO_005S_II", patterns: ["Dầu DO 0[,\\.]?05S-?II", "Dầu Diesel 0[,\\.]?05S-?II"] },
-    { key: "DO_0001S_V", patterns: ["Dầu DO 0[,\\.]?001S-?V", "Dầu Diesel 0[,\\.]?001S-?V"] },
-    { key: "KO", patterns: ["Dầu h?o?a?", "Dầu KO"] },
+    { key: "RON95_III", names: ["Xăng RON 95-III", "RON 95-III", "RON95-III"] },
+    { key: "E10_RON95_III", names: ["Xăng E10 RON 95-III", "E10 RON 95-III", "E10 RON95"] },
+    { key: "E5_RON92_II", names: ["Xăng E5 RON 92-II", "E5 RON 92-II", "E5 RON92"] },
+    { key: "DO_0001S_V", names: ["DO 0,001S-V", "DO 0.001S-V", "0,001S-V"] },
+    { key: "DO_005S_II", names: ["DO 0,05S-II", "DO 0.05S-II", "0,05S-II"] },
+    { key: "KO", names: ["Dầu hỏa", "Dầu hoả", "Dầu hỏa 2-K", "Dầu hỏa 2K", "Dầu KO"] },
+    // (Tuỳ ý thêm RON95-V nếu muốn)
   ];
-  function getAround(src, nameRegex, startIdx) {
-    const idx = src.slice(startIdx).search(nameRegex);
-    if (idx < 0) return { val: null, next: startIdx };
-    const abs = startIdx + idx;
-    const near = src.slice(abs, abs + 220);
-    const m = near.match(/(\d{1,3}(?:[.,]\d{3})+|\d{4,7})\s*(?:đ|đồng)/iu);
-    return { val: toNumVND(m && m[1]), next: abs + 30 };
-  }
-  // Tách khối Vùng 1 / Vùng 2
-  const r1Idx = text.search(/Vùng\s*1/i);
-  const r2Idx = text.search(/Vùng\s*2/i);
-  let r1Text = "", r2Text = "";
-  if (r1Idx >= 0 && r2Idx > r1Idx) {
-    r1Text = text.slice(r1Idx, r2Idx);
-    r2Text = text.slice(r2Idx);
-  } else if (r2Idx >= 0 && r1Idx > r2Idx) {
-    r2Text = text.slice(r2Idx, r1Idx);
-    r1Text = text.slice(r1Idx);
-  }
-  function parseBlock(block) {
-    const out = {};
-    LABELS.forEach(lbl => {
-      for (const p of lbl.patterns) {
-        const { val } = getAround(block, new RegExp(p, "i"), 0);
-        if (val) { out[lbl.key] = val; break; }
-      }
-      if (!(lbl.key in out)) out[lbl.key] = null;
-    });
-    return out;
-  }
-  const region1 = r1Text ? parseBlock(r1Text) : null;
-  const region2 = r2Text ? parseBlock(r2Text) : null;
-  return { region1, region2 };
-}
-function renderFromPetrolimex(html) {
-  const text = flattenHTML(html);
-  const cycle = extractCycle(text);
-  const { region1, region2 } = parseRegionPrices(text);
-  if (!region1 && !region2) return null;
-  function linesFor(label, obj) {
-    if (!obj) return [];
-    return [
-      `${label}`,
-      `  RON95-III   : ${fmt(obj.RON95_III)}`,
-      `  E5 RON92    : ${fmt(obj.E5_RON92_II)}`,
-      `  E10 RON95   : ${fmt(obj.E10_RON95_III)}`,
-      `  DO 0.05S-II : ${fmt(obj.DO_005S_II)}`,
-      `  DO 0.001S-V : ${fmt(obj.DO_0001S_V)}`,
-      `  Dầu hỏa     : ${fmt(obj.KO)}`,
-    ];
-  }
-  const lines = [
-    ...linesFor("Vùng 1", region1),
-    ...linesFor("Vùng 2", region2),
-    cycle,
-    "Nguồn: Petrolimex",
-  ].filter(Boolean);
-  return lines.join("\n");
-}
 
-// ===== Fallback PVOIL =====
-function renderFromPVOIL(html) {
-  const text = flattenHTML(html);
-  function find(label) {
-    const idx = text.indexOf(label);
-    if (idx < 0) return null;
-    const near = text.slice(idx, idx + 200);
-    const m = near.match(/(\d{1,3}(?:[.,]\d{3})+|\d{4,7})\s*(?:đ|đồng)/i);
-    return toNumVND(m && m[1]);
+  function twoAfter(label) {
+    const i = t.indexOf(label);
+    if (i < 0) return [null, null];
+    const seg = t.slice(i, i + 80); // ngay sau nhãn có 2 con số
+    const ms = [...seg.matchAll(/(\d{1,2}[.,]\d{3}|\d{4,6})/g)].map(x => x[1]);
+    // Lấy 2 số đầu tiên
+    return [toNum(ms[0]), toNum(ms[1])];
   }
-  const cycle =
-    text.match(/15:00[^\n]{0,100}?(?:ngày|Ngày)\s*\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}/i)?.[0] ||
-    "Kỳ điều hành gần nhất";
-  const p = {
-    r95: find("Xăng RON 95-III"),
-    e10: find("Xăng E10 RON 95-III"),
-    r92: find("Xăng E5 RON 92-II"),
-    do05: find("Dầu DO 0,05S-II"),
-    ko: find("Dầu KO"),
-  };
-  const lines = [
-    `RON95-III : ${fmt(p.r95)}`,
-    `E5 RON92  : ${fmt(p.r92)}`,
-    `E10 RON95 : ${fmt(p.e10)}`,
-    `DO 0.05S  : ${fmt(p.do05)}`,
-    `Dầu hỏa   : ${fmt(p.ko)}`,
-    cycle,
-    "Nguồn: PVOIL (fallback)",
-  ];
-  return lines.join("\n");
-}
 
-// ===== Main =====
-function fetchFirstWorking(urls, cb) {
-  let i = 0;
-  const tryNext = () => {
-    if (i >= urls.length) return cb(new Error("no source"));
-    const u = urls[i++];
-    $httpClient.get({ url: u, headers: { "User-Agent": "Surge", "Accept-Language": "vi-VN" } },
-      (err, resp, body) => {
-        if (!err && resp && resp.status === 200 && body) cb(null, { url: u, body });
-        else tryNext();
-      });
-  };
-  tryNext();
-}
-fetchFirstWorking(PETROLIMEX_SOURCES, (err, res) => {
-  if (!err && res) {
-    const rendered = renderFromPetrolimex(res.body);
-    if (rendered) return okPanel("Giá xăng dầu VN (PLX)", rendered);
-  }
-  $httpClient.get({ url: PVOIL_FALLBACK }, (e2, r2, b2) => {
-    if (!e2 && r2 && r2.status === 200 && b2) {
-      const rendered = renderFromPVOIL(b2);
-      return okPanel("Giá xăng dầu VN", rendered);
+  const out = {};
+  LABELS.forEach(L => {
+    for (const name of L.names) {
+      const [v1, v2] = twoAfter(name);
+      if (v1 || v2) { out[L.key] = { v1, v2 }; return; }
     }
-    return doneError("Không lấy được dữ liệu Petrolimex/PVOIL");
+    out[L.key] = { v1: null, v2: null };
+  });
+
+  // Chu kỳ cập nhật (nằm ngay dưới bảng)
+  const cy = cycleFrom(t);
+
+  function blockLine(label, pair) {
+    return `  ${label.padEnd(12)}: V1 ${fmt(pair.v1)}  |  V2 ${fmt(pair.v2)}`;
+  }
+
+  const lines = [
+    blockLine("RON95-III", out.RON95_III),
+    blockLine("E10 RON95", out.E10_RON95_III),
+    blockLine("E5 RON92", out.E5_RON92_II),
+    blockLine("DO 0.001S", out.DO_0001S_V),
+    blockLine("DO 0.05S", out.DO_005S_II),
+    blockLine("Dầu hỏa", out.KO),
+    cy,
+    "Nguồn: Petrolimex (header__pricePetrol)",
+  ];
+
+  return lines.join("\n");
+}
+
+// ---- Fallback: news pages (trường hợp header không có) ----
+function tryNewsPages(i, done) {
+  if (i >= PLX_NEWS.length) return done(null);
+  httpGet(PLX_NEWS[i], (e, r, b) => {
+    if (!e && r?.status === 200 && b) {
+      const txt = flat(b);
+      if (/(Vùng\s*1).*(Vùng\s*2)/i.test(txt)) {
+        // Tận dụng parser cũ: tìm theo nhãn và 2 số ngay sau
+        const res = parseHeaderPriceDiv(b); // trick: dùng lại parser header vì cũng là bảng 2 cột
+        if (res) return done(res);
+      }
+    }
+    tryNewsPages(i + 1, done);
+  });
+}
+
+// ---- Fallback cuối: PVOIL ----
+function fallbackPVOIL() {
+  httpGet(PVOIL_FALLBACK, (e, r, b) => {
+    if (!e && r?.status === 200 && b) {
+      const t = flat(b);
+      function find(label) {
+        const i = t.indexOf(label);
+        if (i < 0) return null;
+        const near = t.slice(i, i + 200);
+        const m = near.match(/(\d{1,3}(?:[.,]\d{3})+|\d{4,7})\s*(?:đ|đồng)/i);
+        return toNum(m && m[1]);
+      }
+      const lines = [
+        `  RON95-III  : V1 ${fmt(find("Xăng RON 95-III"))}`,
+        `  E10 RON95  : V1 ${fmt(find("Xăng E10 RON 95-III"))}`,
+        `  E5 RON92   : V1 ${fmt(find("Xăng E5 RON 92-II"))}`,
+        `  DO 0.001S  : V1 ${fmt(find("Dầu DO 0,001S-V"))}`,
+        `  DO 0.05S   : V1 ${fmt(find("Dầu DO 0,05S-II"))}`,
+        `  Dầu hỏa    : V1 ${fmt(find("Dầu KO"))}`,
+        cycleFrom(t),
+        "Nguồn: PVOIL (fallback)",
+      ];
+      return ok("Giá xăng dầu VN", lines.join("\n"));
+    }
+    fail("Không lấy được dữ liệu Petrolimex/PVOIL");
+  });
+}
+
+// ---- Main flow ----
+httpGet(PLX_HOME, (e, r, b) => {
+  if (!e && r?.status === 200 && b) {
+    const panel = parseHeaderPriceDiv(b);
+    if (panel) return ok("Giá xăng dầu VN (PLX)", panel);
+  }
+  // Thử các news pages
+  tryNewsPages(0, (panel) => {
+    if (panel) return ok("Giá xăng dầu VN (PLX)", panel);
+    // Fallback cuối
+    fallbackPVOIL();
   });
 });
