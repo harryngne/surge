@@ -1,0 +1,11 @@
+#!name=VN Fuel Price Panel (Petrolimex Region 1/2 + E10)
+#!desc=Surge panel: Giá xăng dầu Việt Nam từ Petrolimex (có E10 RON95), chia Vùng 1/Vùng 2, đơn vị đồng/lít
+#!author=ChatGPT
+#!homepage=https://www.petrolimex.com.vn/
+#!icon=fuelpump.fill
+
+[Panel]
+FuelPriceVN = script-name=vn_fuel_price_plx, update-interval=3600
+
+[Script]
+vn_fuel_price_plx = type=generic, timeout=25, script-path=https://raw.githubusercontent.com/harryngne/surge/master/xang.js
