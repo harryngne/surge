@@ -36,7 +36,7 @@ class GasPriceVNQuery {
           if (!name || name.includes("Mặt hàng")) continue;
 
           // Rút gọn chữ
-          let sName = name.replace("Xăng RON ", "95-").replace("Xăng E5 RON ", "E5-").replace("Dầu diesel", "Diesel").replace("Dầu hỏa", "D.Hỏa");
+          let sName = name.replace("Xăng RON ", "RON").replace("Xăng E5 RON ", "E5-RON").replace("Dầu diesel", "Dầu Diesel");
           let price = cells[i+1];
           let change = cells[i+2];
           
