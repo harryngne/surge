@@ -1,6 +1,6 @@
 /**
  * Giá xăng dầu Việt Nam - VnExpress (VNE)
- * Phiên bản: Mũi tên Đỏ/Xanh - Chống cache - Hiện đủ 4 dòng
+ * Phiên bản: Tối giản - Chỉ 1 icon trạng thái duy nhất ở tiêu đề
  */
 
 class GasPriceVNQuery {
@@ -19,7 +19,7 @@ class GasPriceVNQuery {
 
       try {
         const dateMatch = data.match(/Giá từ\s*([\d\/]+)/);
-        const updateDate = dateMatch ? dateMatch[1] : "Hôm nay";
+        const updateDate = dateMatch ? dateMatch[1] : "Mới nhất";
 
         const cleanHTML = data.replace(/<(span|strong|a|em).*?>|<\/(span|strong|a|em)>/g, "");
         const tdRegex = /<td.*?>([\s\S]*?)<\/td>/g;
@@ -28,37 +28,32 @@ class GasPriceVNQuery {
           cells.push(m[1].trim());
         }
 
-        let rows = [];
+        let results = [];
+        let isIncreasing = false; // Biến để kiểm tra trạng thái chung
+
         for (let i = 0; i < cells.length; i += 3) {
           let name = cells[i];
           if (!name || name.includes("Mặt hàng")) continue;
 
+          // Rút gọn chữ
+          let sName = name.replace("Xăng RON ", "95-").replace("Xăng E5 RON ", "E5-").replace("Dầu diesel", "Diesel").replace("Dầu hỏa", "D.Hỏa");
           let price = cells[i+1];
           let change = cells[i+2];
           
-          // --- Logic Mũi tên Đỏ/Xanh ---
-          let status = "";
-          if (change.includes("+")) {
-            status = "🔴 ⬆️"; // Tăng - Đỏ
-          } else if (change.includes("-")) {
-            status = "🟢 ⬇️"; // Giảm - Xanh
-          } else {
-            status = "🟡 ➡️"; // Không đổi - Vàng
-          }
+          if (change.includes("+")) isIncreasing = true;
 
-          rows.push({ status, name, price, change: change.replace(/[+-]/g, "") });
+          // Từng dòng chỉ hiện chữ và số, không hiện icon nữa
+          results.push(`• ${sName}: ${price} (${change})`);
         }
 
-        // Tạo nội dung với cấu trúc cực gọn để ép Surge hiện đủ 4 dòng
-        const content = rows.slice(0, 4).map(r => {
-          return `${r.status} ${r.name}: ${r.price} (${r.change})`;
-        }).join("\n");
+        // Quyết định icon tiêu đề: Đỏ nếu có mặt hàng tăng, Xanh nếu giảm/đứng giá
+        const statusIcon = isIncreasing ? "🔴" : "🟢";
 
         $done({
-          title: `⛽️ ${this.title} ${updateDate} (đ/lít)`,
-          content: content,
+          title: `${statusIcon} ${this.title} ${updateDate} (đ/lít)`,
+          content: results.slice(0, 4).join("\n"),
           icon: this.icon,
-          'icon-color': this.color
+          'icon-color': isIncreasing ? "#FF3B30" : "#34C759"
         });
 
       } catch (e) {
