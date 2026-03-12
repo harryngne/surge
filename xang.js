@@ -1,5 +1,5 @@
 /**
- * Script Giá Xăng VnExpress cho Surge 5 - Tối ưu 4 mặt hàng
+ * Script Giá Xăng VnExpress cho Surge 5 - Thêm đơn vị tính
  */
 
 const url = "https://vnexpress.net/chu-de/gia-xang-dau-3026";
@@ -10,6 +10,7 @@ $httpClient.get(url, function(error, response, data) {
         return;
     }
 
+    // Lấy ngày cập nhật từ VnExpress
     const dateMatch = data.match(/Giá từ\s*([\d\/]+)/);
     const updateDate = dateMatch ? dateMatch[1] : "Hôm nay";
 
@@ -24,7 +25,7 @@ $httpClient.get(url, function(error, response, data) {
 
         if (name === "Mặt hàng" || !name) continue;
 
-        // Tối ưu tên cực gọn để không bị tràn dòng
+        // Tối ưu tên cực gọn
         name = name.replace("Xăng RON ", "")
                    .replace("Xăng E5 RON ", "E5 ")
                    .replace("Dầu diesel", "Diesel")
@@ -35,11 +36,11 @@ $httpClient.get(url, function(error, response, data) {
         items.push(`${trend} ${name}: ${price}đ (${change})`);
     }
 
-    // Đảm bảo lấy đủ 4 dòng chính
     const finalContent = items.slice(0, 4).join("\n");
 
     $done({
-        title: `Giá Xăng ${updateDate}`,
+        // Thêm đơn vị vào tiêu đề ở đây
+        title: `Giá Xăng ${updateDate} (đơn vị: đồng/lít)`,
         content: finalContent,
         icon: "fuelpump.fill",
         "icon-color": "#f5a623"
