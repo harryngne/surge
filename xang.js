@@ -1,48 +1,61 @@
 /**
- * Script Giá Xăng VnExpress cho Surge 5 - Fix hiển thị 4 dòng
+ * Script Giá Xăng VnExpress cho Surge 5
+ * Tối ưu: Regex từng ô, Tự động căn lề thẳng hàng.
  */
 
 const url = "https://vnexpress.net/chu-de/gia-xang-dau-3026";
 
 $httpClient.get(url, function(error, response, data) {
     if (error || !data) {
-        $done({ title: "Giá Xăng", content: "Lỗi kết nối mạng", icon: "fuelpump.fill" });
+        $done({ title: "Giá Xăng", content: "Lỗi kết nối", icon: "fuelpump.fill" });
         return;
     }
 
-    // Lấy ngày cập nhật
+    // 1. Lấy ngày cập nhật
     const dateMatch = data.match(/Giá từ\s*([\d\/]+)/);
-    const updateDate = dateMatch ? dateMatch[1] : "12/3/2026";
+    const updateDate = dateMatch ? dateMatch[1] : "Hôm nay";
 
-    const rowRegex = /<tr>\s*<td>(.*?)<\/td>\s*<td>([\d.,]+)<\/td>\s*<td>(.*?)<\/td>\s*<\/tr>/g;
-    let match;
-    let items = [];
-
-    while ((match = rowRegex.exec(data)) !== null) {
-        let name = match[1].replace(/<.*?>/g, "").trim();
-        let price = match[2].trim();
-        let change = match[3].replace(/<.*?>/g, "").trim();
-
-        if (name === "Mặt hàng" || !name) continue;
-
-        // Rút gọn tối đa để vừa chiều ngang panel
-        name = name.replace("Xăng RON ", "RON ")
-                   .replace("Xăng E5 RON ", "E5 ")
-                   .replace("Dầu diesel", "Diesel")
-                   .replace("Dầu hỏa", "D.Hỏa");
-
-        let trend = change.includes("+") ? "🔺" : (change.includes("-") ? "🔻" : "🔹");
-        
-        // Tạo dòng text cho mỗi mặt hàng
-        items.push(`${trend} ${name}: ${price} (${change})`);
+    // 2. Regex bóc tách toàn bộ các ô <td> sạch sẽ
+    // Loại bỏ tag HTML bên trong ô (như <span>) để lấy nội dung thuần
+    const cleanData = data.replace(/<span.*?>|<\/span>/g, "");
+    const tdRegex = /<td.*?>([\s\S]*?)<\/td>/g;
+    let cells = [];
+    let m;
+    while ((m = tdRegex.exec(cleanData)) !== null) {
+        cells.push(m[1].trim());
     }
 
-    // Chỉ lấy 4 dòng đầu tiên: RON 95, E5, Diesel, Dầu hỏa
-    const finalContent = items.slice(0, 4).join("\n");
+    // 3. Xử lý dữ liệu theo nhóm 3 cột (Mặt hàng | Giá | Biến động)
+    let rows = [];
+    for (let i = 0; i < cells.length; i += 3) {
+        let name = cells[i];
+        let price = cells[i+1];
+        let change = cells[i+2];
+
+        if (!name || name.includes("Mặt hàng")) continue;
+
+        // Rút gọn tên để tiết kiệm diện tích
+        name = name.replace("Xăng RON ", "").replace("Xăng E5 RON ", "E5-").replace("Dầu diesel", "Diesel").replace("Dầu hỏa", "D.Hỏa");
+        
+        let trend = change.includes("+") ? "🔺" : (change.includes("-") ? "🔻" : "🔹");
+        
+        // Lưu vào mảng để xử lý căn lề
+        rows.push({ trend, name, price, change });
+    }
+
+    // 4. Tự động căn lề (Padding) để các cột thẳng hàng
+    // Tìm độ dài tên mặt hàng dài nhất để căn chỉnh
+    const maxNameLen = Math.max(...rows.map(r => r.name.length));
+    
+    let content = rows.slice(0, 4).map(r => {
+        // Thêm khoảng trắng vào sau tên mặt hàng để bằng nhau
+        let paddedName = r.name.padEnd(maxNameLen + 1, ' ');
+        return ${r.trend} ${paddedName}: ${r.price} (${r.change});
+    }).join("\n");
 
     $done({
-        title: `Giá Xăng ${updateDate} (đồng/lít)`,
-        content: finalContent,
+        title: Giá Xăng ${updateDate} (đồng/lít),
+        content: content,
         icon: "fuelpump.fill",
         "icon-color": "#f5a623"
     });
