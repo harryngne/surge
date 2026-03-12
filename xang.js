@@ -1,58 +1,75 @@
 /**
- * Script Giá Xăng VnExpress - Tối ưu Regex & Căn hàng tự động
+ * Giá xăng dầu Việt Nam - VnExpress (VNE)
+ * Tương thích: Surge / Loon
+ * Phong cách: Class - Hiển thị 4 dòng, có biến động, tự căn lề.
  */
 
-const url = "https://vnexpress.net/chu-de/gia-xang-dau-3026";
+class GasPriceVNQuery {
+  constructor() {
+    this.title = 'Giá Xăng Dầu VN';
+    this.icon = 'fuelpump.fill';
+    this.color = '#FF9500';
+    this.url = 'https://vnexpress.net/chu-de/gia-xang-dau-3026?t=' + Math.random();
+  }
 
-$httpClient.get(url, function(error, response, data) {
-    if (error || !data) {
-        $done({ title: "Giá Xăng", content: "Lỗi kết nối", icon: "fuelpump.fill" });
-        return;
-    }
+  // Tự động căn lề để các cột thẳng hàng
+  pad(str, len) {
+    str = String(str);
+    return str + ' '.repeat(Math.max(0, len - str.length));
+  }
 
-    const dateMatch = data.match(/Giá từ\s*([\d\/]+)/);
-    const updateDate = dateMatch ? dateMatch[1] : "12/03/2026";
+  run() {
+    $httpClient.get({ url: this.url, timeout: 15000 }, (err, resp, data) => {
+      if (err || !data) {
+        return $done({ title: this.title, content: "Lỗi kết nối VnExpress", icon: this.icon });
+      }
 
-    // Regex lấy sạch ô <td> không bị kẹt bởi tag lồng
-    const cleanHTML = data.replace(/<(span|strong|a|em).*?>|<\/(span|strong|a|em)>/g, "");
-    const tdRegex = /<td.*?>([\s\S]*?)<\/td>/g;
-    let cells = [], m;
-    while ((m = tdRegex.exec(cleanHTML)) !== null) {
-        cells.push(m[1].trim());
-    }
+      try {
+        // 1. Lấy ngày cập nhật
+        const dateMatch = data.match(/Giá từ\s*([\d\/]+)/);
+        const updateDate = dateMatch ? dateMatch[1] : "Mới nhất";
 
-    let rows = [];
-    for (let i = 0; i < cells.length; i += 3) {
-        let name = cells[i];
-        if (!name || name.includes("Mặt hàng")) continue;
+        // 2. Bóc tách dữ liệu sạch từ <td>
+        const cleanHTML = data.replace(/<(span|strong|a|em).*?>|<\/(span|strong|a|em)>/g, "");
+        const tdRegex = /<td.*?>([\s\S]*?)<\/td>/g;
+        let cells = [], m;
+        while ((m = tdRegex.exec(cleanHTML)) !== null) {
+          cells.push(m[1].trim());
+        }
 
-        // Rút gọn tên cực ngắn để dành chỗ cho việc căn lề
-        name = name.replace("Xăng RON ", "95-").replace("Xăng E5 RON ", "E5-").replace("Dầu diesel", "Diesel").replace("Dầu hỏa", "D.Hỏa");
-        
-        let price = cells[i+1];
-        let change = cells[i+2];
-        let trend = change.includes("+") ? "🔺" : (change.includes("-") ? "🔻" : "🔹");
-        
-        rows.push({ trend, name, price, change });
-    }
+        let results = [];
+        for (let i = 0; i < cells.length; i += 3) {
+          let name = cells[i];
+          if (!name || name.includes("Mặt hàng")) continue;
 
-    // Tự động căn lề: Tìm độ dài lớn nhất của từng cột
-    const maxNameLen = Math.max(...rows.map(r => r.name.length));
-    const maxPriceLen = Math.max(...rows.map(r => r.price.length));
+          // Rút gọn tên cực ngắn để vừa chiều ngang Panel
+          let sName = name.replace("Xăng RON ", "").replace("Xăng E5 RON ", "E5-").replace("Dầu diesel", "Diesel").replace("Dầu hỏa", "D.Hỏa");
+          let price = cells[i+1];
+          let change = cells[i+2];
+          let trend = change.includes("+") ? "🔺" : (change.includes("-") ? "🔻" : "🔹");
 
-    let content = rows.slice(0, 4).map(r => {
-        // Căn tên mặt hàng sang trái
-        let n = r.name.padEnd(maxNameLen, ' ');
-        // Căn giá tiền sang phải (để các dấu chấm phân cách hàng nghìn thẳng nhau)
-        let p = r.price.padStart(maxPriceLen, ' ');
-        
-        return ${r.trend} ${n}: ${p} (${r.change});
-    }).join("\n");
+          results.push({ trend, sName, price, change });
+        }
 
-    $done({
-        title: Giá Xăng ${updateDate} (đồng/lít),
-        content: content,
-        icon: "fuelpump.fill",
-        "icon-color": "#f5a623"
+        // 3. Căn lề và tạo nội dung (Lấy 4 dòng chính)
+        const maxN = Math.max(...results.map(r => r.sName.length));
+        const content = results.slice(0, 4).map(r => {
+          return `${r.trend} ${this.pad(r.sName, maxN)}: ${r.price} (${r.change})`;
+        }).join("\n");
+
+        $done({
+          title: `${this.title} ${updateDate} (đ/lít)`,
+          content: content,
+          icon: this.icon,
+          'icon-color': this.color
+        });
+
+      } catch (e) {
+        $done({ title: this.title, content: "Lỗi xử lý dữ liệu: " + e.message });
+      }
     });
-});
+  }
+}
+
+// Chạy script
+new GasPriceVNQuery().run();
